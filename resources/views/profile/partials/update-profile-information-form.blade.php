@@ -79,7 +79,7 @@
             @error('image')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-            <div class="form-text">Upload a new profile image (JPG, PNG, GIF - Max: 2MB)</div>
+            <div class="form-text">Upload a new profile image (JPG, PNG, GIF - Max: 8MB)</div>
         </div>
 
         <!-- Phone -->

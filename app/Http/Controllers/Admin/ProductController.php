@@ -30,13 +30,14 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'no_of_items' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
-            'images.*' => 'nullable|image|max:2048',
+            'images.*' => 'nullable|image|max:8192',
             'videos' => 'nullable|string',
         ]);
 
         $product = Product::create($request->only(
-            'name', 'description', 'price', 'category_id')
+            'name', 'description', 'price', 'no_of_items', 'category_id')
         );
 
         // Handle image uploads
@@ -74,12 +75,13 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'no_of_items' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
-            'images.*' => 'nullable|image|max:2048',
+            'images.*' => 'nullable|image|max:8192',
             'videos' => 'nullable|string',
         ]);
 
-        $product->update($request->only('name', 'description', 'price', 'category_id'));
+        $product->update($request->only('name', 'description', 'price', 'no_of_items', 'category_id'));
 
         // Handle image uploads
         if ($request->hasFile('images')) {

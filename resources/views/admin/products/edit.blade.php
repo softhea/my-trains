@@ -56,7 +56,7 @@
             </div>
 
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label for="price" class="form-label">Price ($)</label>
                   <input type="number" 
@@ -72,7 +72,22 @@
                   @enderror
                 </div>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="no_of_items" class="form-label">Stock (Items Available)</label>
+                  <input type="number" 
+                         name="no_of_items" 
+                         id="no_of_items"
+                         class="form-control @error('no_of_items') is-invalid @enderror" 
+                         value="{{ old('no_of_items', $product->no_of_items) }}"
+                         min="0"
+                         required>
+                  @error('no_of_items')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+              </div>
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label for="category_id" class="form-label">Category</label>
                   <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror" required>
@@ -143,7 +158,7 @@
               @error('images.*')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
-              <div class="form-text">You can upload additional images. Maximum size: 2MB per image.</div>
+              <div class="form-text">You can upload additional images. Maximum size: 8MB per image.</div>
             </div>
 
             <!-- YouTube Videos -->
@@ -180,6 +195,12 @@
         <div class="card-body">
           <h5 class="card-title">📊 Product Stats</h5>
           <ul class="list-unstyled">
+            <li class="mb-2">
+              <strong>Stock:</strong> 
+              <span class="badge bg-{{ $product->getStockStatus() === 'out_of_stock' ? 'danger' : ($product->getStockStatus() === 'low_stock' ? 'warning' : 'success') }}">
+                {{ $product->no_of_items }} items
+              </span>
+            </li>
             <li class="mb-2">
               <strong>Images:</strong> {{ $product->images->count() }} uploaded
             </li>

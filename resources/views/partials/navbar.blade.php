@@ -21,6 +21,12 @@
             Home
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('products.index') ? 'active' : '' }}" href="{{ route('products.index') }}">
+            <i class="fas fa-shopping-bag me-1"></i>
+            Products
+          </a>
+        </li>
 
         @auth
           <!-- Admin Links -->
@@ -65,6 +71,16 @@
                     <a class="dropdown-item" href="{{ route('admin.categories.index') }}">
                       <i class="fas fa-tags me-2"></i>
                       Manage Categories
+                    </a>
+                  </li>
+                @endif
+                
+                @if (Auth::user()->hasPermission('orders.view'))
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{{ route('admin.orders.index') }}">
+                      <i class="fas fa-clipboard-list me-2"></i>
+                      Manage Orders
                     </a>
                   </li>
                 @endif
@@ -113,6 +129,12 @@
                 </div>
               </li>
               <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="{{ route('orders.index') }}">
+                  <i class="fas fa-shopping-bag me-2"></i>
+                  My Orders
+                </a>
+              </li>
               <li>
                 <a class="dropdown-item" href="{{ route('profile.edit') }}">
                   <i class="fas fa-user-edit me-2"></i>

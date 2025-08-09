@@ -30,7 +30,7 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
             'parent_id' => 'nullable|exists:categories,id',
-            'images.*' => 'nullable|image|max:2048',
+            'images.*' => 'nullable|image|max:8192',
         ]);
 
         $category = Category::create($request->only('name', 'parent_id'));
@@ -61,7 +61,7 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'parent_id' => 'nullable|exists:categories,id',
-            'images.*' => 'nullable|image|max:2048',
+            'images.*' => 'nullable|image|max:8192',
         ]);
 
         // Prevent setting parent to itself or its children

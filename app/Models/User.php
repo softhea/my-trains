@@ -140,4 +140,12 @@ class User extends Authenticatable
     {
         return $this->role ? $this->role->display_name : 'User';
     }
+
+    /**
+     * Get the user's orders.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

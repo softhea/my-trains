@@ -14,6 +14,7 @@ class Product extends Model
         'name',
         'description', 
         'price', 
+        'no_of_items',
         'category_id',
     ];
 
@@ -30,5 +31,61 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Check if product has enough stock
+     */
+    public function hasStock(int $quantity = 1): bool
+    {
+        return $this->no_of_items >= $quantity;
+    }
+
+    /**
+     * Check if product is out of stock
+     */
+    public function isOutOfStock(): bool
+    {
+        return $this->no_of_items <= 0;
+    }
+
+    /**
+     * Get stock status
+     */
+    public function getStockStatus(): string
+    {
+        if ($this->no_of_items <= 0) {
+            return 'out_of_stock';
+        } elseif ($this->no_of_items <= 5) {
+            return 'low_stock';
+        } else {
+            return 'in_stock';
+        }
+    }
+
+    /**
+     * Reduce stock quantity
+     */
+    public function reduceStock(int $quantity): bool
+    {
+        if (!$this->hasStock($quantity)) {
+            return false;
+        }
+
+        $this->decrement('no_of_items', $quantity);
+        return true;
+    }
+
+    /**
+     * Restore stock quantity (for order cancellations)
+     */
+    public function restoreStock(int $quantity): void
+    {
+        $this->increment('no_of_items', $quantity);
     }
 }

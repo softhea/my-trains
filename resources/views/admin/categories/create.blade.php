@@ -67,7 +67,7 @@
               @error('images.*')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
-              <div class="form-text">You can upload multiple images for this category. Maximum size: 2MB per image.</div>
+              <div class="form-text">You can upload multiple images for this category. Maximum size: 8MB per image.</div>
             </div>
 
             <div class="d-flex gap-2">

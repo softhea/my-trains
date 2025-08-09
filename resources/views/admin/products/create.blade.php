@@ -29,9 +29,19 @@
       <textarea name="description" class="form-control" rows="4"></textarea>
     </div>
 
-    <div class="mb-3">
-      <label>Price</label>
-      <input type="number" name="price" class="form-control" step="0.01" required>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label>Price</label>
+          <input type="number" name="price" class="form-control" step="0.01" required>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label>Stock (Number of Items)</label>
+          <input type="number" name="no_of_items" class="form-control" min="0" value="0" required>
+        </div>
+      </div>
     </div>
 
     <div class="mb-3">

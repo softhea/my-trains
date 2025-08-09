@@ -68,21 +68,41 @@
     <div class="col-md-6">
       <h1>{{ $product->name }}</h1>
       <p class="lead">${{ $product->price }}</p>
+      
+      <!-- Stock Status -->
+      <div class="mb-3">
+        @if($product->isOutOfStock())
+          <span class="badge bg-danger fs-6">Out of Stock</span>
+        @elseif($product->getStockStatus() === 'low_stock')
+          <span class="badge bg-warning fs-6">Only {{ $product->no_of_items }} left in stock</span>
+        @else
+          <span class="badge bg-success fs-6">{{ $product->no_of_items }} in stock</span>
+        @endif
+      </div>
+      
       <p>{{ $product->description }}</p>
+      
       @auth
-      <form action="{{ route('order.store') }}" method="POST">
-        @csrf
-        <input type="hidden" name="product_id" value="{{ $product->id }}">
-        <div class="mb-2">
-          <label>Quantity</label>
-          <input type="number" name="quantity" value="1" class="form-control" min="1">
-        </div>
-        <div class="mb-2">
-          <label>Note (optional)</label>
-          <textarea name="note" class="form-control"></textarea>
-        </div>
-        <button class="btn btn-success">Place Order</button>
-      </form>
+        @if($product->isOutOfStock())
+          <div class="alert alert-warning">
+            <strong>Sorry!</strong> This product is currently out of stock.
+          </div>
+        @else
+          <form action="{{ route('order.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="product_id" value="{{ $product->id }}">
+            <div class="mb-2">
+              <label>Quantity</label>
+              <input type="number" name="quantity" value="1" class="form-control" min="1" max="{{ $product->no_of_items }}">
+              <small class="text-muted">Maximum available: {{ $product->no_of_items }}</small>
+            </div>
+            <div class="mb-2">
+              <label>Note (optional)</label>
+              <textarea name="note" class="form-control"></textarea>
+            </div>
+            <button class="btn btn-success">Place Order</button>
+          </form>
+        @endif
       @else
         <p><a href="{{ route('login') }}">Login</a> to place an order.</p>
       @endauth

@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,11 +21,19 @@ Route::get('/dashboard', function () {
 
 Route::get('/', [ProductController::class, 'index'])
     ->name('home');
+Route::get('/products', [ProductController::class, 'products'])
+    ->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])
     ->name('products.show');
 Route::post('/order', [OrderController::class, 'store'])
     ->name('order.store')
     ->middleware('auth');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+});
 
 Route::middleware(['auth'])
     ->prefix('admin')
@@ -91,10 +100,24 @@ Route::middleware(['auth'])
         Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])
             ->name('admin.categories.destroy')
             ->middleware('permission:categories.delete');
-        Route::delete('/images/{image}', [AdminCategoryController::class, 'deleteImage'])
+                Route::delete('/images/{image}', [AdminCategoryController::class, 'deleteImage'])
             ->name('admin.images.destroy')
             ->middleware('permission:categories.delete');
-});
+
+        // Order Management
+        Route::get('/orders', [AdminOrderController::class, 'index'])
+            ->name('admin.orders.index')
+            ->middleware('permission:orders.view');
+        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])
+            ->name('admin.orders.show')
+            ->middleware('permission:orders.view');
+        Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
+            ->name('admin.orders.update-status')
+            ->middleware('permission:orders.edit');
+        Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])
+            ->name('admin.orders.destroy')
+            ->middleware('permission:orders.delete');
+    });
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
