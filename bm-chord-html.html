@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bm Guitar Chord</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        .chord-diagram {
+            width: 163px;
+            height: 173px;
+            background: white;
+            border: 2px solid #333;
+            position: relative;
+            margin: 20px;
+            border-radius: 8px;
+        }
+        
+        .chord-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 8px 0;
+            background: #333;
+            color: white;
+            margin: 0;
+            border-radius: 6px 6px 0 0;
+        }
+        
+        .fretboard {
+            position: relative;
+            margin: 10px;
+            width: 143px;
+            height: 120px;
+        }
+        
+        /* Vertical strings */
+        .string {
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: #666;
+            top: 10px;
+        }
+        
+        .string-1 { left: 10px; }
+        .string-2 { left: 35px; }
+        .string-3 { left: 60px; }
+        .string-4 { left: 85px; }
+        .string-5 { left: 110px; }
+        .string-6 { left: 135px; }
+        
+        /* Horizontal frets */
+        .fret {
+            position: absolute;
+            width: 135px;
+            height: 2px;
+            background: #666;
+            left: 10px;
+        }
+        
+        .fret-1 { top: 10px; background: #000; height: 3px; } /* Nut */
+        .fret-2 { top: 30px; }
+        .fret-3 { top: 50px; }
+        .fret-4 { top: 70px; }
+        .fret-5 { top: 90px; }
+        .fret-6 { top: 110px; }
+        
+        /* Finger positions */
+        .finger {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 8px;
+            text-align: center;
+            line-height: 12px;
+            font-weight: bold;
+        }
+        
+        /* Bm chord positions (barre on 2nd fret) */
+        .pos-2-1 { top: 30px; left: 10px; } /* E string, 2nd fret */
+        .pos-2-2 { top: 30px; left: 35px; } /* A string, 2nd fret */
+        .pos-4-3 { top: 50px; left: 60px; } /* D string, 4th fret */
+        .pos-4-4 { top: 50px; left: 85px; } /* G string, 4th fret */
+        .pos-3-5 { top: 40px; left: 110px; } /* B string, 3rd fret */
+        .pos-2-6 { top: 30px; left: 135px; } /* E string, 2nd fret */
+        
+        /* Barre line */
+        .barre {
+            position: absolute;
+            top: 30px;
+            left: 10px;
+            width: 125px;
+            height: 8px;
+            background: rgba(51, 51, 51, 0.8);
+            border-radius: 4px;
+        }
+        
+        /* String labels */
+        .string-labels {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 10px 0;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .fret-numbers {
+            position: absolute;
+            left: -15px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .fret-2-num { top: 25px; }
+        .fret-3-num { top: 45px; }
+        .fret-4-num { top: 65px; }
+    </style>
+</head>
+<body>
+    <div class="chord-diagram">
+        <div class="chord-title">Bm</div>
+        <div class="fretboard">
+            <!-- Fret numbers -->
+            <div class="fret-numbers fret-2-num">2</div>
+            <div class="fret-numbers fret-3-num">3</div>
+            <div class="fret-numbers fret-4-num">4</div>
+            
+            <!-- Strings -->
+            <div class="string string-1"></div>
+            <div class="string string-2"></div>
+            <div class="string string-3"></div>
+            <div class="string string-4"></div>
+            <div class="string string-5"></div>
+            <div class="string string-6"></div>
+            
+            <!-- Frets -->
+            <div class="fret fret-1"></div>
+            <div class="fret fret-2"></div>
+            <div class="fret fret-3"></div>
+            <div class="fret fret-4"></div>
+            <div class="fret fret-5"></div>
+            <div class="fret fret-6"></div>
+            
+            <!-- Barre on 2nd fret -->
+            <div class="barre"></div>
+            
+            <!-- Individual finger positions -->
+            <div class="finger pos-4-3">3</div>
+            <div class="finger pos-4-4">4</div>
+            <div class="finger pos-3-5">2</div>
+        </div>
+        <div class="string-labels">
+            <span>E</span>
+            <span>A</span>
+            <span>D</span>
+            <span>G</span>
+            <span>B</span>
+            <span>E</span>
+        </div>
+    </div>
+</body>
+</html>

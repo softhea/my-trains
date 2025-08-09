@@ -1,0 +1,60 @@
+<svg width="163" height="173" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="163" height="173" fill="white" stroke="#333" stroke-width="2" rx="8"/>
+  
+  <!-- Title -->
+  <rect x="0" y="0" width="163" height="28" fill="#333" rx="8"/>
+  <rect x="0" y="20" width="163" height="8" fill="#333"/>
+  <text x="81.5" y="20" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Bm</text>
+  
+  <!-- Fretboard area -->
+  <g transform="translate(15, 38)">
+    <!-- Vertical strings -->
+    <line x1="10" y1="10" x2="10" y2="110" stroke="#666" stroke-width="2"/>
+    <line x1="30" y1="10" x2="30" y2="110" stroke="#666" stroke-width="2"/>
+    <line x1="50" y1="10" x2="50" y2="110" stroke="#666" stroke-width="2"/>
+    <line x1="70" y1="10" x2="70" y2="110" stroke="#666" stroke-width="2"/>
+    <line x1="90" y1="10" x2="90" y2="110" stroke="#666" stroke-width="2"/>
+    <line x1="110" y1="10" x2="110" y2="110" stroke="#666" stroke-width="2"/>
+    
+    <!-- Horizontal frets -->
+    <line x1="5" y1="10" x2="115" y2="10" stroke="#000" stroke-width="3"/> <!-- Nut -->
+    <line x1="5" y1="30" x2="115" y2="30" stroke="#666" stroke-width="2"/> <!-- 2nd fret -->
+    <line x1="5" y1="50" x2="115" y2="50" stroke="#666" stroke-width="2"/> <!-- 3rd fret -->
+    <line x1="5" y1="70" x2="115" y2="70" stroke="#666" stroke-width="2"/> <!-- 4th fret -->
+    <line x1="5" y1="90" x2="115" y2="90" stroke="#666" stroke-width="2"/> <!-- 5th fret -->
+    <line x1="5" y1="110" x2="115" y2="110" stroke="#666" stroke-width="2"/> <!-- 6th fret -->
+    
+    <!-- Fret numbers -->
+    <text x="0" y="25" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">2</text>
+    <text x="0" y="45" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">3</text>
+    <text x="0" y="65" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">4</text>
+    
+    <!-- Barre on 2nd fret (index finger) -->
+    <rect x="5" y="26" width="110" height="8" fill="rgba(51, 51, 51, 0.8)" rx="4"/>
+    <text x="60" y="32" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">1</text>
+    
+    <!-- Individual finger positions -->
+    <!-- 3rd finger on D string, 4th fret -->
+    <circle cx="50" cy="60" r="6" fill="#333"/>
+    <text x="50" y="63" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">3</text>
+    
+    <!-- 4th finger on G string, 4th fret -->
+    <circle cx="70" cy="60" r="6" fill="#333"/>
+    <text x="70" y="63" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">4</text>
+    
+    <!-- 2nd finger on B string, 3rd fret -->
+    <circle cx="90" cy="40" r="6" fill="#333"/>
+    <text x="90" y="43" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">2</text>
+  </g>
+  
+  <!-- String labels at bottom -->
+  <g transform="translate(15, 158)">
+    <text x="10" y="10" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">E</text>
+    <text x="30" y="10" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">A</text>
+    <text x="50" y="10" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">D</text>
+    <text x="70" y="10" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">G</text>
+    <text x="90" y="10" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">B</text>
+    <text x="110" y="10" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">E</text>
+  </g>
+</svg>
