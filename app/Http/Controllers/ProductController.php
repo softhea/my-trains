@@ -15,14 +15,24 @@ class ProductController extends Controller
      */
     public function index(): View
     {
-        // Get featured products (latest 6 with stock)
-        $products = Product::with(['images', 'category'])
+        // Latest products (show latest 6 with stock)
+        $latestProducts = Product::with(['images', 'category', 'user'])
             ->where('no_of_items', '>', 0)
             ->latest()
             ->take(6)
             ->get();
 
-        return view('home', compact('products'));
+        // Most popular products by view count (top 6)
+        $popularProducts = Product::with(['images', 'category', 'user'])
+            ->where('no_of_items', '>', 0)
+            ->orderByDesc('views_count')
+            ->take(6)
+            ->get();
+
+        return view('home', [
+            'latestProducts' => $latestProducts,
+            'popularProducts' => $popularProducts,
+        ]);
     }
 
     /**
@@ -30,7 +40,7 @@ class ProductController extends Controller
      */
     public function products(Request $request): View
     {
-        $query = Product::with(['category', 'images']);
+        $query = Product::with(['category', 'images', 'user']);
 
         // Search by name and description
         if ($request->filled('search')) {
@@ -118,7 +128,10 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load(['images', 'videos']);
+        // Increment views counter for popularity
+        $product->increment('views_count');
+
+        $product->load(['images', 'videos', 'user']);
         
         return view('products.show', compact('product'));
     }

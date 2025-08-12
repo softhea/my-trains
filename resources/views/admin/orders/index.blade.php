@@ -17,6 +17,7 @@
               <tr>
                 <th>Order ID</th>
                 <th>Customer</th>
+                <th>Seller</th>
                 <th>Product</th>
                 <th>Quantity</th>
                 <th>Total</th>
@@ -36,6 +37,13 @@
                       <strong>{{ $order->user->name }}</strong>
                       <br>
                       <small class="text-muted">{{ $order->user->email }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div>
+                      <strong>{{ $order->seller->name ?? '—' }}</strong>
+                      <br>
+                      <small class="text-muted">{{ $order->seller->email ?? '' }}</small>
                     </div>
                   </td>
                   <td>

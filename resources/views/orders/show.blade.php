@@ -27,6 +27,7 @@
             </div>
             <div class="col-md-8">
               <h3>{{ $order->product->name }}</h3>
+              <p class="text-muted mb-1">{{ __('By') }}: {{ $order->product->user->name ?? ($order->seller->name ?? '-') }}</p>
               <p class="text-muted">{{ $order->product->description }}</p>
               
               <div class="row mb-3">

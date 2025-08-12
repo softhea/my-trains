@@ -10,34 +10,42 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\App;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::middleware('setlocale')->group(function () {
+    Route::get('/', function () {
+        return view('welcome');
+    });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Removed unused dashboard route
 
-Route::get('/', [ProductController::class, 'index'])
-    ->name('home');
-Route::get('/products', [ProductController::class, 'products'])
-    ->name('products.index');
-Route::get('/products/{product}', [ProductController::class, 'show'])
-    ->name('products.show');
-Route::post('/order', [OrderController::class, 'store'])
-    ->name('order.store')
-    ->middleware('auth');
+    Route::get('/', [ProductController::class, 'index'])
+        ->name('home');
+    Route::get('/products', [ProductController::class, 'products'])
+        ->name('products.index');
+    Route::get('/products/{product}', [ProductController::class, 'show'])
+        ->name('products.show');
+    Route::post('/order', [OrderController::class, 'store'])
+        ->name('order.store')
+        ->middleware('auth');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-});
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::get('/my-products', function () {
+            $products = \App\Models\Product::with(['images', 'category'])
+                ->where('user_id', auth()->id())
+                ->latest()
+                ->paginate(12);
+            return view('products.mine', compact('products'));
+        })->name('my.products');
+    });
 
-Route::middleware(['auth'])
-    ->prefix('admin')
-    ->group(function () {
+    Route::middleware(['auth'])
+        ->prefix('admin')
+        ->group(function () {
         // User Management (Superadmin only)
         Route::get('/users', [AdminUserController::class, 'index'])
             ->name('admin.users.index')
@@ -117,12 +125,24 @@ Route::middleware(['auth'])
         Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])
             ->name('admin.orders.destroy')
             ->middleware('permission:orders.delete');
+        });
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';
+
+// Locale switcher
+Route::get('/locale/{locale}', function (string $locale) {
+    abort_unless(in_array($locale, ['en', 'ro'], true), 404);
+    // Remember for a long time (~1 year)
+    Cookie::queue(Cookie::make('locale', $locale, 60 * 24 * 365));
+    // Also apply immediately for the current request
+    App::setLocale($locale);
+    return back();
+})->name('locale.switch');

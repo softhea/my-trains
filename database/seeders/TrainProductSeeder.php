@@ -24,11 +24,11 @@ class TrainProductSeeder extends Seeder
 
         // YouTube videos from model train channels (replace with Trenuletele Mele videos)
         $youtubeVideos = [
-            'https://www.youtube.com/watch?v=VBLksXDZhKk', // Model Train Layout
-            'https://www.youtube.com/watch?v=Q3rX5kTUWQw', // Steam Locomotive
-            'https://www.youtube.com/watch?v=GHZI0s0CvRA', // Electric Trains
-            'https://www.youtube.com/watch?v=xJKu_qJy4YE', // Train Layout Building
-            'https://www.youtube.com/watch?v=f3j9TF9lx8s', // Model Railway
+            'https://www.youtube.com/watch?v=Zf3wgHTvgcI',
+            'https://www.youtube.com/watch?v=5AurcPkhSjY',
+            'https://www.youtube.com/watch?v=DmD3jcHF66A',
+            'https://www.youtube.com/watch?v=UT7qcNsiHgk',
+            'https://www.youtube.com/watch?v=QTe-dVxoFhw',
         ];
 
         $products = [

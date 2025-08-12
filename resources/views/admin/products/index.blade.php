@@ -35,6 +35,7 @@
             <th>Image</th>
             <th>Product Name</th>
             <th>Category</th>
+            <th>Owner</th>
             <th>Price</th>
             <th>Images</th>
             <th>Videos</th>
@@ -63,6 +64,9 @@
               </td>
               <td>
                 <span class="badge bg-secondary">{{ $product->category->name ?? 'No Category' }}</span>
+              </td>
+              <td>
+                <span class="badge bg-dark">{{ $product->user->name ?? '—' }}</span>
               </td>
               <td>
                 <strong>${{ number_format($product->price, 2) }}</strong>

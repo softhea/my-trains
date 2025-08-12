@@ -53,13 +53,13 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Michael Brown',
-                'email' => 'michael@trains.local',
+                'email' => 'user1@example.com',
                 'phone' => '+1-555-0004',
                 'city' => 'Houston',
             ],
             [
                 'name' => 'Emily Davis',
-                'email' => 'emily@trains.local',
+                'email' => 'user2@example.com',
                 'phone' => '+1-555-0005',
                 'city' => 'Phoenix',
             ],

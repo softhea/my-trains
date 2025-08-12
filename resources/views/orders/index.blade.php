@@ -34,6 +34,7 @@
                 </div>
                 <div class="col-8">
                   <h6 class="mb-1">{{ $order->product->name }}</h6>
+                  <p class="text-muted small mb-1">{{ __('By') }}: {{ $order->product->user->name ?? ($order->seller->name ?? '-') }}</p>
                   <p class="text-muted small mb-1">Quantity: {{ $order->quantity }}</p>
                   <p class="text-muted small mb-0">Total: ${{ $order->total_price }}</p>
                 </div>

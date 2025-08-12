@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Products')
+@section('title', __('Products'))
 
 @section('content')
 <div class="container py-4">
   <!-- Header -->
   <div class="row mb-4">
     <div class="col-md-8">
-      <h1>Products</h1>
-      <p class="text-muted">Discover our amazing collection of model trains</p>
+      <h1>{{ __('Products') }}</h1>
+      <p class="text-muted">{{ __('Discover our amazing collection of model trains') }}</p>
     </div>
     <div class="col-md-4 text-end">
       <div class="d-flex align-items-center justify-content-end">
-        <span class="text-muted me-2">{{ $products->total() }} results</span>
+        <span class="text-muted me-2">{{ $products->total() }} {{ __('results') }}</span>
         @if(request()->hasAny(['search', 'category', 'stock', 'min_price', 'max_price']))
           <a href="{{ route('products.index') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-times me-1"></i>Clear Filters
+            <i class="fas fa-times me-1"></i>{{ __('Clear Filters') }}
           </a>
         @endif
       </div>
@@ -28,7 +28,7 @@
       <div class="card">
         <div class="card-header">
           <h5 class="mb-0">
-            <i class="fas fa-filter me-2"></i>Filters & Search
+            <i class="fas fa-filter me-2"></i>{{ __('Filters & Search') }}
           </h5>
         </div>
         <div class="card-body">
@@ -36,14 +36,14 @@
             
             <!-- Search -->
             <div class="mb-3">
-              <label for="search" class="form-label">Search Products</label>
+              <label for="search" class="form-label">{{ __('Search Products') }}</label>
               <div class="input-group">
                 <input type="text" 
                        class="form-control" 
                        id="search" 
                        name="search" 
                        value="{{ request('search') }}" 
-                       placeholder="Search by name or description...">
+                        placeholder="{{ __('Search by name or description...') }}">
                 <button type="submit" class="btn btn-outline-primary">
                   <i class="fas fa-search"></i>
                 </button>
@@ -52,9 +52,9 @@
 
             <!-- Category Filter -->
             <div class="mb-3">
-              <label for="category" class="form-label">Category</label>
+              <label for="category" class="form-label">{{ __('Category') }}</label>
               <select class="form-select" id="category" name="category" onchange="this.form.submit()">
-                <option value="">All Categories</option>
+                <option value="">{{ __('All Categories') }}</option>
                 @foreach($categories as $category)
                   <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
                     {{ $category->name }}
@@ -65,24 +65,24 @@
 
             <!-- Stock Filter -->
             <div class="mb-3">
-              <label for="stock" class="form-label">Availability</label>
+              <label for="stock" class="form-label">{{ __('Availability') }}</label>
               <select class="form-select" id="stock" name="stock" onchange="this.form.submit()">
-                <option value="">All Products</option>
-                <option value="in_stock" {{ request('stock') === 'in_stock' ? 'selected' : '' }}>In Stock</option>
-                <option value="out_of_stock" {{ request('stock') === 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                <option value="">{{ __('All Products') }}</option>
+                <option value="in_stock" {{ request('stock') === 'in_stock' ? 'selected' : '' }}>{{ __('In Stock') }}</option>
+                <option value="out_of_stock" {{ request('stock') === 'out_of_stock' ? 'selected' : '' }}>{{ __('Out of Stock') }}</option>
               </select>
             </div>
 
             <!-- Price Range -->
             <div class="mb-3">
-              <label class="form-label">Price Range</label>
+              <label class="form-label">{{ __('Price Range') }}</label>
               <div class="row g-2">
                 <div class="col-6">
                   <input type="number" 
                          class="form-control form-control-sm" 
                          name="min_price" 
                          value="{{ request('min_price') }}" 
-                         placeholder="Min $"
+                          placeholder="{{ __('Min $') }}"
                          min="0"
                          step="0.01">
                 </div>
@@ -91,21 +91,21 @@
                          class="form-control form-control-sm" 
                          name="max_price" 
                          value="{{ request('max_price') }}" 
-                         placeholder="Max $"
+                          placeholder="{{ __('Max $') }}"
                          min="0"
                          step="0.01">
                 </div>
               </div>
               @if($priceRange)
                 <small class="text-muted">
-                  Range: ${{ number_format($priceRange->min_price, 2) }} - ${{ number_format($priceRange->max_price, 2) }}
+                  {{ __('Range:') }} ${{ number_format($priceRange->min_price, 2) }} - ${{ number_format($priceRange->max_price, 2) }}
                 </small>
               @endif
             </div>
 
             <!-- Apply Filters Button -->
             <button type="submit" class="btn btn-primary w-100">
-              <i class="fas fa-filter me-1"></i>Apply Filters
+              <i class="fas fa-filter me-1"></i>{{ __('Apply Filters') }}
             </button>
 
             <!-- Keep sort parameter -->
@@ -120,14 +120,14 @@
       <!-- Sort Options -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center">
-          <label for="sort" class="form-label me-2 mb-0">Sort by:</label>
+          <label for="sort" class="form-label me-2 mb-0">{{ __('Sort by:') }}</label>
           <select class="form-select form-select-sm" id="sort" style="width: auto;" onchange="updateSort(this.value)">
-            <option value="latest" {{ request('sort') === 'latest' ? 'selected' : '' }}>Newest First</option>
-            <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>Oldest First</option>
-            <option value="price_low" {{ request('sort') === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-            <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
-            <option value="name_asc" {{ request('sort') === 'name_asc' ? 'selected' : '' }}>Name: A to Z</option>
-            <option value="name_desc" {{ request('sort') === 'name_desc' ? 'selected' : '' }}>Name: Z to A</option>
+            <option value="latest" {{ request('sort') === 'latest' ? 'selected' : '' }}>{{ __('Newest First') }}</option>
+            <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>{{ __('Oldest First') }}</option>
+            <option value="price_low" {{ request('sort') === 'price_low' ? 'selected' : '' }}>{{ __('Price: Low to High') }}</option>
+            <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>{{ __('Price: High to Low') }}</option>
+            <option value="name_asc" {{ request('sort') === 'name_asc' ? 'selected' : '' }}>{{ __('Name: A to Z') }}</option>
+            <option value="name_desc" {{ request('sort') === 'name_desc' ? 'selected' : '' }}>{{ __('Name: Z to A') }}</option>
           </select>
         </div>
         
@@ -181,11 +181,12 @@
                       <span class="badge bg-secondary">{{ $product->category->name }}</span>
                     @endif
                   </div>
+                  <small class="text-muted mb-2">{{ __('By') }}: {{ $product->user->name ?? '-' }}</small>
                   
                   <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
+                     <small class="text-muted">
                       <i class="fas fa-box me-1"></i>
-                      {{ $product->no_of_items }} in stock
+                       {{ $product->no_of_items }} {{ __('in stock') }}
                     </small>
                     <small class="text-muted">
                       {{ $product->created_at->format('M d, Y') }}
@@ -194,7 +195,7 @@
                   
                   <div class="mt-3">
                     <a href="{{ route('products.show', $product) }}" class="btn btn-primary w-100">
-                      <i class="fas fa-eye me-1"></i>View Details
+                      <i class="fas fa-eye me-1"></i>{{ __('View Details') }}
                     </a>
                   </div>
                 </div>
@@ -211,10 +212,10 @@
         <!-- No Results -->
         <div class="text-center py-5">
           <i class="fas fa-search fa-4x text-muted mb-3"></i>
-          <h3>No products found</h3>
-          <p class="text-muted">Try adjusting your search criteria or filters.</p>
+          <h3>{{ __('No products found') }}</h3>
+          <p class="text-muted">{{ __('Try adjusting your search criteria or filters.') }}</p>
           <a href="{{ route('products.index') }}" class="btn btn-primary">
-            <i class="fas fa-refresh me-1"></i>Show All Products
+            <i class="fas fa-refresh me-1"></i>{{ __('Show All Products') }}
           </a>
         </div>
       @endif

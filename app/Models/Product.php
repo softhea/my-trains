@@ -16,6 +16,8 @@ class Product extends Model
         'price', 
         'no_of_items',
         'category_id',
+        'views_count',
+        'user_id',
     ];
 
     public function images()
@@ -31,6 +33,11 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function orders(): HasMany

@@ -13,19 +13,30 @@
 
     <!-- Navigation items -->
     <div class="collapse navbar-collapse" id="navbarContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
         <!-- Home Link -->
         <li class="nav-item">
           <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
             <i class="fas fa-home me-1"></i>
-            Home
+            {{ __('Home') }}
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link {{ request()->routeIs('products.index') ? 'active' : '' }}" href="{{ route('products.index') }}">
             <i class="fas fa-shopping-bag me-1"></i>
-            Products
+            {{ __('Products') }}
           </a>
+        </li>
+
+        <!-- Language Switcher (visible for all users) -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-globe me-1"></i>{{ strtoupper(app()->getLocale()) }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+            <li><a class="dropdown-item" href="{{ route('locale.switch', ['locale' => 'en']) }}">English</a></li>
+            <li><a class="dropdown-item" href="{{ route('locale.switch', ['locale' => 'ro']) }}">Română</a></li>
+          </ul>
         </li>
 
         @auth
@@ -34,14 +45,14 @@
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-cog me-1"></i>
-                Admin
+                {{ __('Admin') }}
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
                 @if (Auth::user()->hasPermission('users.view'))
                   <li>
                     <a class="dropdown-item" href="{{ route('admin.users.index') }}">
                       <i class="fas fa-users me-2"></i>
-                      Manage Users
+                      {{ __('Manage Users') }}
                     </a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
@@ -51,7 +62,7 @@
                   <li>
                     <a class="dropdown-item" href="{{ route('admin.products.index') }}">
                       <i class="fas fa-box me-2"></i>
-                      Manage Products
+                      {{ __('Manage Products') }}
                     </a>
                   </li>
                 @endif
@@ -60,7 +71,7 @@
                   <li>
                     <a class="dropdown-item" href="{{ route('admin.products.create') }}">
                       <i class="fas fa-plus me-2"></i>
-                      Add Product
+                      {{ __('Add Product') }}
                     </a>
                   </li>
                 @endif
@@ -70,7 +81,7 @@
                   <li>
                     <a class="dropdown-item" href="{{ route('admin.categories.index') }}">
                       <i class="fas fa-tags me-2"></i>
-                      Manage Categories
+                      {{ __('Manage Categories') }}
                     </a>
                   </li>
                 @endif
@@ -80,7 +91,7 @@
                   <li>
                     <a class="dropdown-item" href="{{ route('admin.orders.index') }}">
                       <i class="fas fa-clipboard-list me-2"></i>
-                      Manage Orders
+                      {{ __('Manage Orders') }}
                     </a>
                   </li>
                 @endif
@@ -132,13 +143,19 @@
               <li>
                 <a class="dropdown-item" href="{{ route('orders.index') }}">
                   <i class="fas fa-shopping-bag me-2"></i>
-                  My Orders
+                   {{ __('My Orders') }}
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{{ route('my.products') }}">
+                  <i class="fas fa-box-open me-2"></i>
+                  {{ __('My Products') }}
                 </a>
               </li>
               <li>
                 <a class="dropdown-item" href="{{ route('profile.edit') }}">
                   <i class="fas fa-user-edit me-2"></i>
-                  Edit Profile
+                   {{ __('Edit Profile') }}
                 </a>
               </li>
               <li><hr class="dropdown-divider"></li>
@@ -147,7 +164,7 @@
                   @csrf
                   <button type="submit" class="dropdown-item">
                     <i class="fas fa-sign-out-alt me-2"></i>
-                    Logout
+                     {{ __('Logout') }}
                   </button>
                 </form>
               </li>
@@ -158,13 +175,13 @@
           <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}">
               <i class="fas fa-sign-in-alt me-1"></i>
-              Login
+              {{ __('Login') }}
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}" href="{{ route('register') }}">
               <i class="fas fa-user-plus me-1"></i>
-              Register
+              {{ __('Register') }}
             </a>
           </li>
         @endauth

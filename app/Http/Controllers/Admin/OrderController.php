@@ -10,9 +10,16 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with(['user', 'product'])
-            ->latest()
-            ->paginate(20);
+        $query = Order::with(['user', 'product']);
+
+        // Non-admins see only orders for their own products
+        if (!auth()->user()->isAdmin()) {
+            $query->whereHas('product', function ($q) {
+                $q->where('user_id', auth()->id());
+            });
+        }
+
+        $orders = $query->latest()->paginate(20);
 
         return view('admin.orders.index', compact('orders'));
     }

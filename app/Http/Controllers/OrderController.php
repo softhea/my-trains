@@ -19,12 +19,14 @@ class OrderController extends Controller
 
         $product = Product::findOrFail($request->product_id);
         
+        // Prevent ordering own product
+        if ($product->user_id && $product->user_id === auth()->id()) {
+            return back()->with('error', __('You cannot order your own product.'));
+        }
+
         // Check if product has enough stock
         if (!$product->hasStock($request->quantity)) {
-            return back()->with(
-                'error', 
-                'Sorry, we only have ' . $product->no_of_items . ' items in stock.'
-            );
+            return back()->with('error', __('Sorry, we only have :count items in stock.', ['count' => $product->no_of_items]));
         }
 
         try {
@@ -34,6 +36,7 @@ class OrderController extends Controller
                 
                 $order = Order::create([
                     'user_id' => auth()->id(),
+                    'seller_id' => $product->user_id,
                     'product_id' => $request->product_id,
                     'quantity' => $request->quantity,
                     'total_price' => $totalPrice,
@@ -45,15 +48,9 @@ class OrderController extends Controller
                 $product->reduceStock($request->quantity);
             });
 
-            return back()->with(
-                'success', 
-                'Order placed successfully! We\'ll contact you soon.'
-            );
+            return back()->with('success', __('Order placed successfully! We\'ll contact you soon.'));
         } catch (\Exception $e) {
-            return back()->with(
-                'error', 
-                'There was an error placing your order. Please try again.'
-            );
+            return back()->with('error', __('There was an error placing your order. Please try again.'));
         }
     }
 

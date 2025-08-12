@@ -37,14 +37,15 @@ class ProductController extends Controller
         ]);
 
         $product = Product::create($request->only(
-            'name', 'description', 'price', 'no_of_items', 'category_id')
-        );
+            'name', 'description', 'price', 'no_of_items', 'category_id') + [
+            'user_id' => $request->user()->id,
+        ]);
 
         // Handle image uploads
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $img) {
                 $path = $img->store('products', 'public');
-                $product->images()->create(['url' => "/storage/$path"]);
+                $product->images()->create(['url' => "storage/$path"]);
             }
         }
 

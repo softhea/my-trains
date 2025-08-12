@@ -148,4 +148,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+
+    /**
+     * Products created/owned by the user.
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

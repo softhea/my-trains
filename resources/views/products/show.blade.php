@@ -35,7 +35,7 @@
           <div class="position-absolute top-0 end-0 m-3">
             <span class="badge bg-dark bg-opacity-75 text-white">
               <i class="fas fa-search-plus me-1"></i>
-              Click to zoom
+              {{ __('Click to zoom') }}
             </span>
           </div>
         </div>
@@ -60,23 +60,24 @@
         <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
           <div class="text-center text-muted">
             <i class="fas fa-image fa-3x mb-3"></i>
-            <p>No images available</p>
+            <p>{{ __('No images available') }}</p>
           </div>
         </div>
       @endif
     </div>
     <div class="col-md-6">
       <h1>{{ $product->name }}</h1>
+      <p class="text-muted mb-1">{{ __('By') }}: {{ $product->user->name ?? '-' }}</p>
       <p class="lead">${{ $product->price }}</p>
       
       <!-- Stock Status -->
       <div class="mb-3">
         @if($product->isOutOfStock())
-          <span class="badge bg-danger fs-6">Out of Stock</span>
+          <span class="badge bg-danger fs-6">{{ __('Out of Stock') }}</span>
         @elseif($product->getStockStatus() === 'low_stock')
-          <span class="badge bg-warning fs-6">Only {{ $product->no_of_items }} left in stock</span>
+          <span class="badge bg-warning fs-6">{{ __('Only :count left in stock', ['count' => $product->no_of_items]) }}</span>
         @else
-          <span class="badge bg-success fs-6">{{ $product->no_of_items }} in stock</span>
+          <span class="badge bg-success fs-6">{{ $product->no_of_items }} {{ __('in stock') }}</span>
         @endif
       </div>
       
@@ -85,26 +86,26 @@
       @auth
         @if($product->isOutOfStock())
           <div class="alert alert-warning">
-            <strong>Sorry!</strong> This product is currently out of stock.
+            <strong>{{ __('Sorry!') }}</strong> {{ __('This product is currently out of stock.') }}
           </div>
         @else
           <form action="{{ route('order.store') }}" method="POST">
             @csrf
             <input type="hidden" name="product_id" value="{{ $product->id }}">
             <div class="mb-2">
-              <label>Quantity</label>
+              <label>{{ __('Quantity') }}</label>
               <input type="number" name="quantity" value="1" class="form-control" min="1" max="{{ $product->no_of_items }}">
-              <small class="text-muted">Maximum available: {{ $product->no_of_items }}</small>
+              <small class="text-muted">{{ __('Maximum available: :count', ['count' => $product->no_of_items]) }}</small>
             </div>
             <div class="mb-2">
-              <label>Note (optional)</label>
+              <label>{{ __('Note (optional)') }}</label>
               <textarea name="note" class="form-control"></textarea>
             </div>
-            <button class="btn btn-success">Place Order</button>
+            <button class="btn btn-success">{{ __('Place Order') }}</button>
           </form>
         @endif
       @else
-        <p><a href="{{ route('login') }}">Login</a> to place an order.</p>
+        <p><a href="{{ route('login') }}">{{ __('Login') }}</a> {{ __('to place an order.') }}</p>
       @endauth
     </div>
   </div>
@@ -114,7 +115,7 @@
     <div class="col-12">
       <h3 class="mb-4">
         <i class="fas fa-play-circle text-danger me-2"></i>
-        Product Videos
+        {{ __('Product Videos') }}
       </h3>
     </div>
     @foreach($product->videos as $video)
@@ -136,7 +137,7 @@
                 <i class="fab fa-youtube text-danger me-1"></i>
                 Video {{ $loop->iteration }}
                 <a href="{{ $video->url }}" target="_blank" class="ms-2">
-                  <i class="fas fa-external-link-alt"></i> Open in YouTube
+                  <i class="fas fa-external-link-alt"></i> {{ __('Open in YouTube') }}
                 </a>
               </small>
             </div>
@@ -144,7 +145,7 @@
         @else
           <div class="alert alert-warning">
             <i class="fas fa-exclamation-triangle me-2"></i>
-            Invalid YouTube URL: <a href="{{ $video->url }}" target="_blank">{{ $video->url }}</a>
+            {{ __('Invalid YouTube URL:') }} <a href="{{ $video->url }}" target="_blank">{{ $video->url }}</a>
           </div>
         @endif
       </div>
