@@ -17,7 +17,7 @@
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start mb-3">
                 <h5 class="card-title">Order #{{ $order->id }}</h5>
-                <span class="badge bg-{{ $order->getStatusColor() }}">{{ $order->getFormattedStatus() }}</span>
+                <span class="badge bg-{{ $order->getStatusColor() }} px-3 py-2">{{ $order->getFormattedStatus() }}</span>
               </div>
               
               <div class="row mb-3">

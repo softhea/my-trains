@@ -63,7 +63,7 @@
                   <td>{{ $order->quantity }}</td>
                   <td><strong>${{ $order->total_price }}</strong></td>
                   <td>
-                    <span class="badge bg-{{ $order->getStatusColor() }}">
+                    <span class="badge bg-{{ $order->getStatusColor() }} px-2 py-1">
                       {{ $order->getFormattedStatus() }}
                     </span>
                   </td>

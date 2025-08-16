@@ -8,7 +8,7 @@
     <div class="col-md-8">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Order #{{ $order->id }}</h1>
-        <span class="badge bg-{{ $order->getStatusColor() }} fs-6">{{ $order->getFormattedStatus() }}</span>
+        <span class="badge bg-{{ $order->getStatusColor() }}" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ $order->getFormattedStatus() }}</span>
       </div>
 
       <div class="card">

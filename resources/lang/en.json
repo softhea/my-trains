@@ -64,6 +64,11 @@
   "You cannot order your own product.": "You cannot order your own product.",
   "Sorry, we only have :count items in stock.": "Sorry, we only have :count items in stock.",
   "Order placed successfully! We'll contact you soon.": "Order placed successfully! We'll contact you soon.",
-  "There was an error placing your order. Please try again.": "There was an error placing your order. Please try again."
+  "There was an error placing your order. Please try again.": "There was an error placing your order. Please try again.",
+  "My Products": "My Products",
+  "Pending": "Pending",
+  "Processing": "Processing",
+  "Completed": "Completed",
+  "Cancelled": "Cancelled"
 }
 

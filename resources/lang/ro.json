@@ -64,6 +64,11 @@
   "You cannot order your own product.": "Nu poți comanda propriul tău produs.",
   "Sorry, we only have :count items in stock.": "Ne pare rău, avem doar :count articole în stoc.",
   "Order placed successfully! We'll contact you soon.": "Comanda a fost plasată cu succes! Te vom contacta în curând.",
-  "There was an error placing your order. Please try again.": "A apărut o eroare la plasarea comenzii. Te rugăm să încerci din nou."
+  "There was an error placing your order. Please try again.": "A apărut o eroare la plasarea comenzii. Te rugăm să încerci din nou.",
+  "My Products": "Produsele mele",
+  "Pending": "În așteptare",
+  "Processing": "În procesare",
+  "Completed": "Finalizată",
+  "Cancelled": "Anulată"
 }
 

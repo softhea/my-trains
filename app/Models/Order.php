@@ -84,6 +84,12 @@ class Order extends Model
      */
     public function getFormattedStatus(): string
     {
-        return ucfirst($this->status);
+        return match($this->status) {
+            'pending' => __('Pending'),
+            'processing' => __('Processing'),
+            'completed' => __('Completed'),
+            'cancelled' => __('Cancelled'),
+            default => ucfirst($this->status)
+        };
     }
 }
