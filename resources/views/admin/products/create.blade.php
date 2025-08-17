@@ -30,13 +30,25 @@
     </div>
 
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-4">
         <div class="mb-3">
           <label>Price</label>
           <input type="number" name="price" class="form-control" step="0.01" required>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label>Currency</label>
+          <select name="currency" class="form-select" required>
+            @foreach(\App\Models\Product::getAvailableCurrencies() as $code => $name)
+              <option value="{{ $code }}" {{ old('currency', 'RON') === $code ? 'selected' : '' }}>
+                {{ $name }}
+              </option>
+            @endforeach
+          </select>
+        </div>
+      </div>
+      <div class="col-md-4">
         <div class="mb-3">
           <label>Stock (Number of Items)</label>
           <input type="number" name="no_of_items" class="form-control" min="0" value="0" required>

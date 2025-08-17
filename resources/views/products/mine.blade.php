@@ -35,7 +35,7 @@
               <h5 class="card-title">{{ $product->name }}</h5>
               <p class="card-text text-muted small flex-grow-1">{{ \Illuminate\Support\Str::limit($product->description, 80) }}</p>
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="h5 mb-0 text-primary">${{ number_format($product->price, 2) }}</span>
+                <span class="h5 mb-0 text-primary">{{ $product->formatted_price }}</span>
                 @if($product->category)
                   <span class="badge bg-secondary">{{ $product->category->name }}</span>
                 @endif

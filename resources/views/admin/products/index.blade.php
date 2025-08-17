@@ -69,7 +69,7 @@
                 <span class="badge bg-dark">{{ $product->user->name ?? '—' }}</span>
               </td>
               <td>
-                <strong>${{ number_format($product->price, 2) }}</strong>
+                <strong>{{ $product->formatted_price }}</strong>
               </td>
               <td>
                 <span class="badge bg-info">{{ $product->images->count() }} images</span>

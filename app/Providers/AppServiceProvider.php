@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cookie;
+use Laravel\Socialite\Facades\Socialite;
+use SocialiteProviders\Apple\Provider as AppleProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +29,10 @@ class AppServiceProvider extends ServiceProvider
         if (is_string($locale) && in_array($locale, ['en', 'ro'], true)) {
             App::setLocale($locale);
         }
+
+        // Register Apple OAuth provider
+        \Event::listen(SocialiteWasCalled::class, function (SocialiteWasCalled $event) {
+            $event->extendSocialite('apple', AppleProvider::class);
+        });
     }
 }

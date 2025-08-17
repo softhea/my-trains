@@ -56,9 +56,9 @@
             </div>
 
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="mb-3">
-                  <label for="price" class="form-label">Price ($)</label>
+                  <label for="price" class="form-label">Price</label>
                   <input type="number" 
                          name="price" 
                          id="price"
@@ -72,7 +72,25 @@
                   @enderror
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="currency" class="form-label">Currency</label>
+                  <select name="currency" 
+                          id="currency"
+                          class="form-select @error('currency') is-invalid @enderror" 
+                          required>
+                    @foreach(\App\Models\Product::getAvailableCurrencies() as $code => $name)
+                      <option value="{{ $code }}" {{ old('currency', $product->currency) === $code ? 'selected' : '' }}>
+                        {{ $name }}
+                      </option>
+                    @endforeach
+                  </select>
+                  @error('currency')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+              </div>
+              <div class="col-md-3">
                 <div class="mb-3">
                   <label for="no_of_items" class="form-label">Stock (Items Available)</label>
                   <input type="number" 
@@ -87,7 +105,7 @@
                   @enderror
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="mb-3">
                   <label for="category_id" class="form-label">Category</label>
                   <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror" required>

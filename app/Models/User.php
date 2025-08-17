@@ -23,6 +23,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'google_id',
+        'apple_id',
+        'avatar',
         'phone',
         'city',
         'role_id',
@@ -74,6 +77,11 @@ class User extends Authenticatable
      */
     public function getImageUrlAttribute()
     {
+        // Prioritize Google avatar, then uploaded image
+        if ($this->avatar) {
+            return $this->avatar;
+        }
+        
         return $this->image ? $this->image->url : null;
     }
 
@@ -155,5 +163,42 @@ class User extends Authenticatable
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    /**
+     * Messages sent by the user.
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Messages received by the user.
+     */
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    /**
+     * Get unread messages count.
+     */
+    public function unreadMessagesCount(): int
+    {
+        return $this->receivedMessages()->unread()->count();
+    }
+
+    /**
+     * Get latest unread messages.
+     */
+    public function latestUnreadMessages($limit = 5)
+    {
+        return $this->receivedMessages()
+            ->with(['sender', 'product'])
+            ->unread()
+            ->latest()
+            ->limit($limit)
+            ->get();
     }
 }

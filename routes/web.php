@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\MessageController as AdminMessageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cookie;
@@ -41,6 +43,15 @@ Route::middleware('setlocale')->group(function () {
                 ->paginate(12);
             return view('products.mine', compact('products'));
         })->name('my.products');
+        
+        // Messages
+        Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/create', [MessageController::class, 'create'])->name('messages.create');
+        Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+        Route::get('/messages/conversation/{user}', [MessageController::class, 'conversation'])->name('messages.conversation');
+        Route::post('/messages/reply/{user}', [MessageController::class, 'reply'])->name('messages.reply');
+        Route::get('/api/messages/unread-count', [MessageController::class, 'unreadCount'])->name('messages.unread-count');
+        Route::get('/api/messages/latest-unread', [MessageController::class, 'latestUnread'])->name('messages.latest-unread');
     });
 
     Route::middleware(['auth'])
@@ -125,6 +136,18 @@ Route::middleware('setlocale')->group(function () {
         Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])
             ->name('admin.orders.destroy')
             ->middleware('permission:orders.delete');
+
+        // Message Management  
+        Route::get('/messages', [AdminMessageController::class, 'index'])
+            ->name('admin.messages.index');
+        Route::get('/messages/{message}', [AdminMessageController::class, 'show'])
+            ->name('admin.messages.show');
+        Route::delete('/messages/{message}', [AdminMessageController::class, 'destroy'])
+            ->name('admin.messages.destroy');
+        Route::patch('/messages/{message}/toggle-read', [AdminMessageController::class, 'toggleRead'])
+            ->name('admin.messages.toggle-read');
+        Route::post('/messages/bulk-action', [AdminMessageController::class, 'bulkAction'])
+            ->name('admin.messages.bulk-action');
         });
 
     Route::middleware('auth')->group(function () {

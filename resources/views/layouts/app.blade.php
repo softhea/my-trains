@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>@yield('title', 'My Train Shop')</title>
+  <title>@yield('title', __('My Model Trains'))</title>
   
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -346,6 +346,65 @@
       alertList.forEach(function (alert) {
         new bootstrap.Alert(alert)
       });
+
+      @auth
+      // Messages notification system
+      function updateMessagesNotification() {
+        fetch('{{ route("messages.unread-count") }}')
+          .then(response => response.json())
+          .then(data => {
+            const countBadge = document.getElementById('unread-messages-count');
+            if (data.count > 0) {
+              countBadge.textContent = data.count > 99 ? '99+' : data.count;
+              countBadge.style.display = 'block';
+            } else {
+              countBadge.style.display = 'none';
+            }
+          });
+      }
+
+      function updateLatestMessages() {
+        fetch('{{ route("messages.latest-unread") }}')
+          .then(response => response.json())
+          .then(data => {
+            const container = document.getElementById('latest-messages');
+            if (data.messages.length > 0) {
+              container.innerHTML = data.messages.map(message => `
+                <li>
+                  <a class="dropdown-item" href="${message.url}">
+                    <div class="d-flex">
+                      <div class="flex-grow-1">
+                        <div class="fw-bold">${message.sender}</div>
+                        <div class="small text-muted">${message.subject}</div>
+                        <div class="small">${message.message}</div>
+                        ${message.product ? `<div class="small text-info">{{ __('About:') }} ${message.product}</div>` : ''}
+                        <div class="small text-muted">${message.created_at}</div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              `).join('');
+            } else {
+              container.innerHTML = '<li class="dropdown-item-text text-center text-muted py-3">{{ __("No new messages") }}</li>';
+            }
+          });
+      }
+
+      // Update on page load
+      updateMessagesNotification();
+      updateLatestMessages();
+
+      // Update every 30 seconds
+      setInterval(() => {
+        updateMessagesNotification();
+        updateLatestMessages();
+      }, 30000);
+
+      // Update when clicking on messages dropdown
+      document.getElementById('messagesDropdown').addEventListener('shown.bs.dropdown', function () {
+        updateLatestMessages();
+      });
+      @endauth
     });
   </script>
   

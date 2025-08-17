@@ -14,10 +14,15 @@ class Product extends Model
         'name',
         'description', 
         'price', 
+        'currency',
         'no_of_items',
         'category_id',
         'views_count',
         'user_id',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
     ];
 
     public function images()
@@ -94,5 +99,24 @@ class Product extends Model
     public function restoreStock(int $quantity): void
     {
         $this->increment('no_of_items', $quantity);
+    }
+
+    /**
+     * Get formatted price with currency
+     */
+    public function getFormattedPriceAttribute(): string
+    {
+        return format_currency((float) $this->price, $this->currency);
+    }
+
+    /**
+     * Get available currencies
+     */
+    public static function getAvailableCurrencies(): array
+    {
+        return [
+            'RON' => 'RON (Romanian Leu)',
+            'EUR' => 'EUR (Euro)',
+        ];
     }
 }

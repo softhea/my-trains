@@ -3,7 +3,7 @@
     <!-- Brand -->
     <a class="navbar-brand fw-bold" href="{{ url('/') }}">
       <i class="fas fa-train me-2 text-warning"></i>
-      My Train Shop
+      {{ __('My Model Trains') }}
     </a>
 
     <!-- Mobile toggle button -->
@@ -67,14 +67,12 @@
                   </li>
                 @endif
                 
-                @if (Auth::user()->hasPermission('products.create'))
-                  <li>
-                    <a class="dropdown-item" href="{{ route('admin.products.create') }}">
-                      <i class="fas fa-plus me-2"></i>
-                      {{ __('Add Product') }}
-                    </a>
-                  </li>
-                @endif
+                <li>
+                  <a class="dropdown-item" href="{{ route('admin.messages.index') }}">
+                    <i class="fas fa-envelope me-2"></i>
+                    {{ __('Manage Messages') }}
+                  </a>
+                </li>
                 
                 @if (Auth::user()->hasPermission('categories.view'))
                   <li><hr class="dropdown-divider"></li>
@@ -98,6 +96,35 @@
               </ul>
             </li>
           @endif
+
+          <!-- Messages Notification -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle position-relative" href="#" id="messagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-envelope me-1"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="unread-messages-count" style="display: none;">
+                0
+              </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="messagesDropdown" style="min-width: 320px;">
+              <li class="dropdown-header d-flex justify-content-between align-items-center">
+                <span>{{ __('Messages') }}</span>
+                <a href="{{ route('messages.index') }}" class="text-decoration-none small">{{ __('View All') }}</a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <div id="latest-messages">
+                <li class="dropdown-item-text text-center text-muted py-3">
+                  {{ __('No new messages') }}
+                </li>
+              </div>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item text-center" href="{{ route('messages.index') }}">
+                  <i class="fas fa-inbox me-1"></i>
+                  {{ __('Go to Inbox') }}
+                </a>
+              </li>
+            </ul>
+          </li>
 
           <!-- User Dropdown -->
           <li class="nav-item dropdown">
@@ -150,6 +177,12 @@
                 <a class="dropdown-item" href="{{ route('my.products') }}">
                   <i class="fas fa-box-open me-2"></i>
                   {{ __('My Products') }}
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{{ route('messages.index') }}">
+                  <i class="fas fa-envelope me-2"></i>
+                  {{ __('Messages') }}
                 </a>
               </li>
               <li>

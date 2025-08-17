@@ -27,6 +27,7 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'products.create', 'display_name' => 'Create Products', 'description' => 'Create new products', 'group' => 'products'],
             ['name' => 'products.edit', 'display_name' => 'Edit Products', 'description' => 'Edit product information', 'group' => 'products'],
             ['name' => 'products.delete', 'display_name' => 'Delete Products', 'description' => 'Delete products', 'group' => 'products'],
+            ['name' => 'products.own', 'display_name' => 'Manage Own Products', 'description' => 'Manage own products', 'group' => 'products'],
             
             // Category Management
             ['name' => 'categories.view', 'display_name' => 'View Categories', 'description' => 'View category list and details', 'group' => 'categories'],
@@ -39,12 +40,12 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'orders.create', 'display_name' => 'Create Orders', 'description' => 'Create new orders', 'group' => 'orders'],
             ['name' => 'orders.edit', 'display_name' => 'Edit Orders', 'description' => 'Edit order information', 'group' => 'orders'],
             ['name' => 'orders.delete', 'display_name' => 'Delete Orders', 'description' => 'Delete orders', 'group' => 'orders'],
+            ['name' => 'orders.own', 'display_name' => 'Manage Own Orders', 'description' => 'Manage own orders', 'group' => 'orders'],
             
             // General Permissions
             ['name' => 'admin.access', 'display_name' => 'Access Admin Panel', 'description' => 'Access to admin panel', 'group' => 'admin'],
             ['name' => 'profile.edit', 'display_name' => 'Edit Own Profile', 'description' => 'Edit own profile information', 'group' => 'profile'],
-            ['name' => 'products.view_public', 'display_name' => 'View Public Products', 'description' => 'View products in public store', 'group' => 'public'],
-            ['name' => 'orders.own', 'display_name' => 'Manage Own Orders', 'description' => 'Create and view own orders', 'group' => 'public'],
+        
         ];
 
         foreach ($permissions as $permission) {
@@ -81,9 +82,9 @@ class RolePermissionSeeder extends Seeder
         }
 
         // Assign permissions to roles
-        $superadmin = Role::where('name', 'superadmin')->first();
-        $admin = Role::where('name', 'admin')->first();
-        $user = Role::where('name', 'user')->first();
+        $superadmin = Role::find(1);
+        $admin = Role::find(2);
+        $user = Role::find(3);
 
         // SuperAdmin gets all permissions
         $allPermissions = Permission::all();
@@ -91,10 +92,10 @@ class RolePermissionSeeder extends Seeder
 
         // Admin gets product, category, and order management permissions
         $adminPermissions = Permission::whereIn('name', [
-            'admin.access',
-            'products.view', 'products.create', 'products.edit', 'products.delete',
+            // 'admin.access',
+            'products.view', 'products.create', 'products.edit', 'products.delete', 'products.own',
             'categories.view', 'categories.create', 'categories.edit', 'categories.delete',
-            'orders.view', 'orders.create', 'orders.edit', 'orders.delete',
+            'orders.view', 'orders.create', 'orders.edit', 'orders.delete', 'orders.own',
             'profile.edit'
         ])->get();
         $admin->permissions()->attach($adminPermissions);
@@ -102,8 +103,8 @@ class RolePermissionSeeder extends Seeder
         // Regular user gets basic permissions
         $userPermissions = Permission::whereIn('name', [
             'profile.edit',
-            'products.view_public',
-            'orders.own'
+            'products.view', 'products.create', 'products.own',
+            'orders.create', 'orders.own'
         ])->get();
         $user->permissions()->attach($userPermissions);
     }

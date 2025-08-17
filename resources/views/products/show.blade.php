@@ -68,22 +68,31 @@
     <div class="col-md-6">
       <h1>{{ $product->name }}</h1>
       <p class="text-muted mb-1">{{ __('By') }}: {{ $product->user->name ?? '-' }}</p>
-      <p class="lead">${{ $product->price }}</p>
+      <p class="lead">{{ $product->formatted_price }}</p>
       
       <!-- Stock Status -->
       <div class="mb-3">
         @if($product->isOutOfStock())
-          <span class="badge bg-danger fs-6">{{ __('Out of Stock') }}</span>
+          <span class="badge bg-danger px-3 py-2">{{ __('Out of Stock') }}</span>
         @elseif($product->getStockStatus() === 'low_stock')
-          <span class="badge bg-warning fs-6">{{ __('Only :count left in stock', ['count' => $product->no_of_items]) }}</span>
+          <span class="badge bg-warning px-3 py-2">{{ __('Only :count left in stock', ['count' => $product->no_of_items]) }}</span>
         @else
-          <span class="badge bg-success fs-6">{{ $product->no_of_items }} {{ __('in stock') }}</span>
+          <span class="badge bg-success px-3 py-2">{{ $product->no_of_items }} {{ __('in stock') }}</span>
         @endif
       </div>
       
       <p>{{ $product->description }}</p>
       
       @auth
+        <!-- Contact Seller Button -->
+        @if($product->user && $product->user->id !== Auth::id())
+          <div class="mb-3">
+            <a href="{{ route('messages.create', ['product_id' => $product->id]) }}" class="btn btn-outline-primary">
+              <i class="fas fa-envelope me-1"></i>{{ __('Contact Seller') }}
+            </a>
+          </div>
+        @endif
+
         @if($product->isOutOfStock())
           <div class="alert alert-warning">
             <strong>{{ __('Sorry!') }}</strong> {{ __('This product is currently out of stock.') }}
@@ -105,6 +114,15 @@
           </form>
         @endif
       @else
+        <!-- For non-authenticated users -->
+        @if($product->user)
+          <div class="mb-3">
+            <a href="{{ route('login') }}" class="btn btn-outline-primary">
+              <i class="fas fa-envelope me-1"></i>{{ __('Contact Seller') }}
+            </a>
+            <small class="d-block text-muted mt-1">{{ __('Login required to send messages') }}</small>
+          </div>
+        @endif
         <p><a href="{{ route('login') }}">{{ __('Login') }}</a> {{ __('to place an order.') }}</p>
       @endauth
     </div>

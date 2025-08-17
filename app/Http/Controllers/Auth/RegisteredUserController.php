@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Anhskohbo\NoCaptcha\Facades\NoCaptcha;
 
 class RegisteredUserController extends Controller
 {
@@ -32,19 +34,31 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', Rules\Password::defaults()],
+            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+                if (!NoCaptcha::verifyResponse($value)) {
+                    $fail(__('The reCAPTCHA verification failed. Please try again.'));
+                }
+            }],
         ]);
+
+        // Get default role for new users
+        $defaultRole = Role::where('name', 'user')->first();
+        if (!$defaultRole) {
+            $defaultRole = Role::whereNotIn('name', ['admin', 'superadmin'])->first();
+        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role_id' => $defaultRole ? $defaultRole->id : null,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('home', absolute: false));
     }
 }

@@ -36,6 +36,7 @@ class TrainProductSeeder extends Seeder
                 'name' => 'DB BR 01 Steam Locomotive',
                 'description' => 'Authentic German DB BR 01 steam locomotive with detailed weathering and sound effects. Perfect for model railway enthusiasts who appreciate historical accuracy.',
                 'price' => 299.99,
+                'currency' => 'EUR',
                 'no_of_items' => 15,
                 'category_id' => $steamCategory->id,
                 'image_url' => 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=500&h=400&fit=crop',
@@ -45,6 +46,7 @@ class TrainProductSeeder extends Seeder
                 'name' => 'ICE 3 High-Speed Electric Train',
                 'description' => 'Modern ICE 3 high-speed electric train set with LED lighting and digital control. Features realistic acceleration and braking sounds.',
                 'price' => 449.99,
+                'currency' => 'EUR',
                 'no_of_items' => 8,
                 'category_id' => $electricCategory->id,
                 'image_url' => 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=400&fit=crop',
@@ -124,14 +126,19 @@ class TrainProductSeeder extends Seeder
             ]
         ];
 
+        // Get available users for random assignment
+        $userIds = \App\Models\User::pluck('id')->toArray();
+
         foreach ($products as $productData) {
             // Create the product
             $product = Product::create([
                 'name' => $productData['name'],
                 'description' => $productData['description'],
                 'price' => $productData['price'],
+                'currency' => $productData['currency'] ?? ['RON', 'EUR'][array_rand(['RON', 'EUR'])],
                 'no_of_items' => $productData['no_of_items'],
                 'category_id' => $productData['category_id'],
+                'user_id' => !empty($userIds) ? $userIds[array_rand($userIds)] : null,
             ]);
 
             // Add image
