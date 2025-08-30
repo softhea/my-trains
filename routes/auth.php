@@ -42,11 +42,14 @@ Route::middleware('guest')->group(function () {
     Route::get('auth/google/callback', [SocialiteController::class, 'handleGoogleCallback'])
         ->name('auth.google.callback');
 
-    Route::get('auth/apple', [SocialiteController::class, 'redirectToApple'])
-        ->name('auth.apple');
-        
-    Route::get('auth/apple/callback', [SocialiteController::class, 'handleAppleCallback'])
-        ->name('auth.apple.callback');
+    // Apple OAuth Routes (conditional)
+    if (config('services.apple.enabled')) {
+        Route::get('auth/apple', [SocialiteController::class, 'redirectToApple'])
+            ->name('auth.apple');
+            
+        Route::get('auth/apple/callback', [SocialiteController::class, 'handleAppleCallback'])
+            ->name('auth.apple.callback');
+    }
 });
 
 Route::middleware('auth')->group(function () {

@@ -75,6 +75,7 @@
             {{ __('Sign up with Google') }}
         </a>
 
+        @if(config('services.apple.enabled') && Route::has('auth.apple'))
         <!-- Apple Login Button -->
         <a href="{{ route('auth.apple') }}" 
            class="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition duration-150 ease-in-out">
@@ -83,6 +84,7 @@
             </svg>
             {{ __('Sign up with Apple') }}
         </a>
+        @endif
     </div>
 
     <div class="flex items-center justify-center mt-6">
