@@ -30,6 +30,7 @@ class User extends Authenticatable
         'city',
         'role_id',
         'is_protected',
+        'email_verified_at'
     ];
 
     /**

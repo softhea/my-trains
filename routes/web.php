@@ -79,6 +79,7 @@ Route::middleware('setlocale')->group(function () {
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])
             ->name('admin.users.destroy')
             ->middleware('permission:users.delete');
+
         Route::patch('/users/{user}/toggle-verification', [AdminUserController::class, 'toggleEmailVerification'])
             ->name('admin.users.toggle-verification')
             ->middleware('permission:users.edit');

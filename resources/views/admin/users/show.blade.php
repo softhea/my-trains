@@ -33,23 +33,39 @@
                             @endif
                             
                             <h5 class="mt-3 mb-1">{{ $user->name }}</h5>
-                            <span class="badge bg-{{ $user->role->name === 'superadmin' ? 'danger' : ($user->role->name === 'admin' ? 'warning' : 'primary') }} fs-6">
-                                {{ $user->role->display_name ?? 'No Role' }}
-                            </span>
+                            <div class="mb-2">
+                                <span class="badge bg-{{ $user->role->name === 'superadmin' ? 'danger' : ($user->role->name === 'admin' ? 'warning' : 'primary') }}">
+                                    {{ $user->role->display_name ?? 'No Role' }}
+                                </span>
+                            </div>
                             
-                            @if($user->email_verified_at)
-                                <div class="mt-2">
+                            <div class="mb-2">
+                                @if($user->auth_provider === 'Google')
+                                    <span class="badge bg-danger">
+                                        <i class="fab fa-google me-1"></i>Google
+                                    </span>
+                                @elseif($user->auth_provider === 'Apple')
+                                    <span class="badge bg-dark">
+                                        <i class="fab fa-apple me-1"></i>Apple
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-envelope me-1"></i>Email
+                                    </span>
+                                @endif
+                            </div>
+                            
+                            <div class="mt-2">
+                                @if($user->email_verified_at)
                                     <span class="badge bg-success">
                                         <i class="fas fa-check me-1"></i>Email Verified
                                     </span>
-                                </div>
-                            @else
-                                <div class="mt-2">
-                                    <span class="badge bg-secondary">
-                                        <i class="fas fa-clock me-1"></i>Email Pending
+                                @else
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-clock me-1"></i>Email Unverified
                                     </span>
-                                </div>
-                            @endif
+                                @endif
+                            </div>
                         </div>
 
                         <!-- Details Section -->

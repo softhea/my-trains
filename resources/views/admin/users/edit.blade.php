@@ -212,52 +212,6 @@
                             @enderror
                         </div>
 
-                        <!-- Email Verification Section -->
-                        @if(Auth::user()->hasPermission('users.edit') && (!$user->is_protected || auth()->user()->isSuperAdmin()))
-                            <div class="mb-3">
-                                <label class="form-label">
-                                    <i class="fas fa-envelope-open-text me-1"></i>
-                                    Email Verification Status
-                                </label>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                @if($user->email_verified_at)
-                                                    <span class="badge bg-success me-2">
-                                                        <i class="fas fa-check me-1"></i>Verified
-                                                    </span>
-                                                    <small class="text-muted">
-                                                        Verified on {{ $user->email_verified_at->format('M d, Y \a\t g:i A') }}
-                                                    </small>
-                                                @else
-                                                    <span class="badge bg-warning me-2">
-                                                        <i class="fas fa-clock me-1"></i>Unverified
-                                                    </span>
-                                                    <small class="text-danger">
-                                                        This user cannot add products or place orders until verified.
-                                                    </small>
-                                                @endif
-                                            </div>
-                                            <form method="POST" action="{{ route('admin.users.toggle-verification', $user) }}" class="d-inline">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" 
-                                                        class="btn btn-sm {{ $user->email_verified_at ? 'btn-outline-warning' : 'btn-outline-success' }}"
-                                                        onclick="return confirm('{{ $user->email_verified_at ? 'Are you sure you want to mark this user as unverified?' : 'Are you sure you want to mark this user as verified?' }}')">
-                                                    @if($user->email_verified_at)
-                                                        <i class="fas fa-times me-1"></i>Mark as Unverified
-                                                    @else
-                                                        <i class="fas fa-check me-1"></i>Mark as Verified
-                                                    @endif
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-1"></i>
@@ -269,6 +223,54 @@
                             </button>
                         </div>
                     </form>
+
+                    <!-- Email Verification Section (Outside main form) -->
+                    @if(Auth::user()->hasPermission('users.edit') && (!$user->is_protected || auth()->user()->isSuperAdmin()))
+                        <div class="mt-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-envelope-open-text me-2"></i>
+                                        Email Verification Management
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            @if($user->email_verified_at)
+                                                <span class="badge bg-success me-2">
+                                                    <i class="fas fa-check me-1"></i>Verified
+                                                </span>
+                                                <small class="text-muted">
+                                                    Verified on {{ $user->email_verified_at->format('M d, Y \a\t g:i A') }}
+                                                </small>
+                                            @else
+                                                <span class="badge bg-warning me-2">
+                                                    <i class="fas fa-clock me-1"></i>Unverified
+                                                </span>
+                                                <small class="text-danger">
+                                                    This user cannot add products or place orders until verified.
+                                                </small>
+                                            @endif
+                                        </div>
+                                        <form method="POST" action="{{ route('admin.users.toggle-verification', $user) }}" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" 
+                                                    class="btn btn-sm {{ $user->email_verified_at ? 'btn-outline-warning' : 'btn-outline-success' }}"
+                                                    onclick="return confirm('{{ $user->email_verified_at ? 'Are you sure you want to mark this user as unverified?' : 'Are you sure you want to mark this user as verified?' }}')">
+                                                @if($user->email_verified_at)
+                                                    <i class="fas fa-times me-1"></i>Mark as Unverified
+                                                @else
+                                                    <i class="fas fa-check me-1"></i>Mark as Verified
+                                                @endif
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

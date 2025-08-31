@@ -1,39 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
         $users = User::with('role')->paginate(10);
+
         return view('admin.users.index', compact('users'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
         $roles = Role::all();
+
         return view('admin.users.create', compact('roles'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -54,13 +60,18 @@ class UserController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+        return redirect()
+            ->route('admin.users.index')
+            ->with(
+                'success', 
+                __('User created successfully.')
+            );
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show(User $user): View
     {
         return view('admin.users.show', compact('user'));
     }
@@ -68,16 +79,20 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user)
+    public function edit(User $user): View
     {
         $roles = Role::all();
-        return view('admin.users.edit', compact('user', 'roles'));
+
+        return view(
+            'admin.users.edit', 
+            compact('user', 'roles')
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $user): RedirectResponse
     {
         // Prevent editing of protected users
         if ($user->is_protected && !auth()->user()->isSuperAdmin()) {
@@ -107,17 +122,24 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
+        return redirect()
+            ->route('admin.users.index')
+            ->with(
+                'success', 
+                __('User updated successfully.')
+            );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(User $user): RedirectResponse
     {
         // Prevent deletion of protected users and superadmins
         if (!$user->canBeDeleted()) {
-            return redirect()->route('admin.users.index')->with('error', 'Cannot delete this user.');
+            return redirect()
+            ->route('admin.users.index')
+                ->with('error', __('Cannot delete this user.'));
         }
 
         // Delete user's image if exists
@@ -129,7 +151,9 @@ class UserController extends Controller
 
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', __('User deleted successfully.'));
     }
 
     /**
@@ -144,7 +168,7 @@ class UserController extends Controller
 
         if ($user->email_verified_at) {
             // Unverify user
-            $user->update(['email_verified_at' => null]);
+            $user->update(attributes: ['email_verified_at' => null]);
             $action = 'unverified';
         } else {
             // Verify user
@@ -152,6 +176,7 @@ class UserController extends Controller
             $action = 'verified';
         }
 
-        return back()->with('success', "User email has been {$action} successfully.");
+        return back()
+            ->with('success', __("User email has been {$action} successfully."));
     }
 }
