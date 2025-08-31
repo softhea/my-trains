@@ -55,7 +55,20 @@ class RegisteredUserController extends Controller
             'role_id' => $defaultRole ? $defaultRole->id : null,
         ]);
 
-        event(new Registered($user));
+        try {
+            event(new Registered($user));
+        } catch (\Exception $e) {
+            // Log the email error but don't stop registration
+            \Log::error('Email verification sending failed during registration', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Optionally show a warning to the user
+            session()->flash('warning', 'Account created successfully, but we couldn\'t send the verification email. Please contact support if needed.');
+        }
 
         Auth::login($user);
 
