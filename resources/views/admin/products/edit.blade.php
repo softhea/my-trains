@@ -151,7 +151,7 @@
                         <div class="card-body p-2">
                           <button type="button" 
                                   class="btn btn-sm btn-danger w-100" 
-                                  onclick="deleteImage({{ $image->id }})"
+                                  onclick="deleteProductImage({{ $image->id }})"
                                   title="Delete this image">
                             <i class="fas fa-trash me-1"></i>
                             Delete

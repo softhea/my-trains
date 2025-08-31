@@ -108,6 +108,10 @@ Route::middleware('setlocale')->group(function () {
             ->name('admin.products.destroy');
             //->middleware('permission:products.delete');
 
+        Route::delete('products/images/{image}', [AdminProductController::class, 'deleteImage'])
+            ->name('admin.products.images.destroy');
+            //->middleware('permission:products.delete');
+
         // Category Management
         Route::get('/categories', [AdminCategoryController::class, 'index'])
             ->name('admin.categories.index')
@@ -127,8 +131,9 @@ Route::middleware('setlocale')->group(function () {
         Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])
             ->name('admin.categories.destroy')
             ->middleware('permission:categories.delete');
-                Route::delete('/images/{image}', [AdminCategoryController::class, 'deleteImage'])
-            ->name('admin.images.destroy')
+        
+        Route::delete('categories/images/{image}', [AdminCategoryController::class, 'deleteImage'])
+            ->name('admin.categories.images.destroy')
             ->middleware('permission:categories.delete');
 
         // Order Management

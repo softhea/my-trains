@@ -16,19 +16,21 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function index()
+public function index(): View
     {
         $products = Product::with('category', 'images', 'videos')->latest()->get();
+
         return view('admin.products.index', compact('products'));
     }
 
-    public function create()
+    public function create(): View
     {
         $categories = Category::all();
+
         return view('admin.products.create', compact('categories'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -64,7 +66,14 @@ class ProductController extends Controller
             }
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product created successfully!');
+        $redirectRoute = 'admin.products.index';
+        if (!auth()->user()->isAdmin()) {
+            $redirectRoute = 'my.products';
+        }
+
+        return redirect()
+            ->route($redirectRoute)
+            ->with('success', __('Product created successfully!'));
     }
 
     public function edit(Product $product): View
@@ -126,7 +135,14 @@ class ProductController extends Controller
             $product->videos()->delete();
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
+        $redirectRoute = 'admin.products.index';
+        if (!auth()->user()->isAdmin()) {
+            $redirectRoute = 'my.products';
+        }
+
+        return redirect()
+            ->route($redirectRoute)
+            ->with('success', __('Product updated successfully!'));
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -147,14 +163,24 @@ class ProductController extends Controller
         // Delete the product (cascade will handle images and videos)
         $product->delete();
 
-        return redirect()->route('admin.products.index')->with('success', __('Product deleted successfully!'));
+        $redirectRoute = 'admin.products.index';
+        if (!auth()->user()->isAdmin()) {
+            $redirectRoute = 'my.products';
+        }
+
+        return redirect()
+            ->route($redirectRoute)
+            ->with('success', __('Product deleted successfully!'));
     }
 
     public function deleteImage(Image $image): JsonResponse
     {
         // Verify the image belongs to a product
         if ($image->imageable_type !== Product::class) {
-            return response()->json(['error' => 'Image not found'], 404);
+            return response()->json([
+                'error' => 'Image not found'], 
+                404
+            );
         }
 
         // Delete from storage

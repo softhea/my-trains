@@ -284,24 +284,46 @@ document.addEventListener('DOMContentLoaded', function() {
     MyTrainShop.init();
 });
 
-// Global delete image function for admin panels
-function deleteImage(imageId) {
-    MyTrainShop.confirm('Are you sure you want to delete this image?', function() {
-        MyTrainShop.ajax(`/admin/images/${imageId}`, {
+// Delete product image function
+function deleteProductImage(imageId) {
+    MyTrainShop.confirm('Are you sure you want to delete this product image?', function() {
+        MyTrainShop.ajax(`/admin/products/images/${imageId}`, {
             method: 'DELETE'
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                MyTrainShop.showSuccess('Image deleted successfully');
+                MyTrainShop.showSuccess('Product image deleted successfully');
                 setTimeout(() => location.reload(), 1000);
             } else {
-                MyTrainShop.showError('Error deleting image: ' + (data.error || 'Unknown error'));
+                MyTrainShop.showError('Error deleting product image: ' + (data.error || 'Unknown error'));
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            MyTrainShop.showError('Error deleting image. Please try again.');
+            MyTrainShop.showError('Error deleting product image. Please try again.');
+        });
+    });
+}
+
+// Delete category image function
+function deleteCategoryImage(imageId) {
+    MyTrainShop.confirm('Are you sure you want to delete this category image?', function() {
+        MyTrainShop.ajax(`/admin/categories/images/${imageId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                MyTrainShop.showSuccess('Category image deleted successfully');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                MyTrainShop.showError('Error deleting category image: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            MyTrainShop.showError('Error deleting category image. Please try again.');
         });
     });
 }

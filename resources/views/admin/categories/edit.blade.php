@@ -68,9 +68,13 @@
                       <div class="card">
                         <img src="{{ $image->url }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Category Image">
                         <div class="card-body p-2">
-                          <button type="button" class="btn btn-sm btn-danger w-100" onclick="deleteImage({{ $image->id }})">
+                          <button type="button" 
+                                  class="btn btn-sm btn-danger w-100" 
+                                  onclick="deleteCategoryImage({{ $image->id }})"
+                                  title="Delete this image">
+                            <i class="fas fa-trash me-1"></i>
                             Delete
-                          </button>
+                          </button>                          
                         </div>
                       </div>
                     </div>
