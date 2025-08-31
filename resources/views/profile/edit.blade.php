@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Profile Settings')
+@section('title', __('Profile Settings'))
 
 @section('content')
 <div class="container mt-4">
@@ -10,11 +10,11 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h2 mb-0">
                     <i class="fas fa-user-edit me-2 text-primary"></i>
-                    Profile Settings
+                    {{ __('Profile Settings') }}
                 </h1>
                 @if($user->image_url)
                     <img src="{{ $user->image_url }}" 
-                         alt="Profile" 
+                         alt="{{ __('Profile') }}" 
                          class="rounded-circle border" 
                          style="width: 60px; height: 60px; object-fit: cover;">
                 @endif
@@ -27,7 +27,7 @@
                         <div class="col-auto">
                             @if($user->image_url)
                                 <img src="{{ $user->image_url }}" 
-                                     alt="Profile" 
+                                     alt="{{ __('Profile') }}" 
                                      class="rounded-circle border" 
                                      style="width: 80px; height: 80px; object-fit: cover;">
                             @else
@@ -59,7 +59,7 @@
             @if (session('status') === 'profile-updated')
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
-                    Your profile has been updated successfully!
+                    {{ __('Your profile has been updated successfully!') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
@@ -69,7 +69,7 @@
                 <div class="card-header">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-user me-2"></i>
-                        Profile Information
+                        {{ __('Profile Information') }}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -82,7 +82,7 @@
                 <div class="card-header">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-lock me-2"></i>
-                        Update Password
+                        {{ __('Update Password') }}
                     </h5>
                 </div>
                 <div class="card-body">

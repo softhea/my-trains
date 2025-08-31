@@ -65,10 +65,10 @@
             @if($user->image_url)
                 <div class="mb-2">
                     <img src="{{ $user->image_url }}" 
-                         alt="Current profile image" 
+                         alt="{{ __('Current profile image') }}" 
                          class="rounded-circle"
                          style="width: 80px; height: 80px; object-fit: cover;">
-                    <div class="form-text text-muted">Current profile image</div>
+                    <div class="form-text text-muted">{{ __('Current profile image') }}</div>
                 </div>
             @endif
             <input id="image" 
@@ -79,7 +79,7 @@
             @error('image')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-            <div class="form-text">Upload a new profile image (JPG, PNG, GIF - Max: 8MB)</div>
+            <div class="form-text">{{ __('Upload a new profile image (JPG, PNG, GIF - Max: 8MB)') }}</div>
         </div>
 
         <!-- Phone -->
@@ -94,7 +94,7 @@
             @error('phone')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-            <div class="form-text">Optional: Your contact phone number</div>
+            <div class="form-text">{{ __('Optional: Your contact phone number') }}</div>
         </div>
 
         <!-- City -->
@@ -109,7 +109,7 @@
             @error('city')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-            <div class="form-text">Optional: Your city or location</div>
+            <div class="form-text">{{ __('Optional: Your city or location') }}</div>
         </div>
 
         <div class="d-flex align-items-center gap-3">

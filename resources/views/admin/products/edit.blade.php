@@ -1,14 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Product')
+@section('title', __('Edit Product'))
 
 @section('content')
 <div class="container py-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Edit Product: {{ $product->name }}</h1>
+    <h1>{{ __('Edit Product') }}: {{ $product->name }}</h1>
     <div>
-      <a href="{{ route('products.show', $product) }}" class="btn btn-outline-info" target="_blank">View Product</a>
-      <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Back to Products</a>
+      <a href="{{ route('products.show', $product) }}" 
+          class="btn btn-outline-info" 
+          target="_blank"
+          >{{ __('View Product') }}</a>
+      <a href="{{ route('admin.products.index') }}" 
+          class="btn btn-secondary"
+          >{{ __('Back to Products') }}</a>
     </div>
   </div>
 
@@ -31,7 +36,7 @@
             @method('PUT')
 
             <div class="mb-3">
-              <label for="name" class="form-label">Product Name</label>
+              <label for="name" class="form-label">{{ __('Product Name') }}</label>
               <input type="text" 
                      name="name" 
                      id="name"
@@ -44,7 +49,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
+              <label for="description" class="form-label">{{ __('Description') }}</label>
               <textarea name="description" 
                         id="description"
                         class="form-control @error('description') is-invalid @enderror" 
@@ -58,7 +63,7 @@
             <div class="row">
               <div class="col-md-3">
                 <div class="mb-3">
-                  <label for="price" class="form-label">Price</label>
+                  <label for="price" class="form-label">{{ __('Price') }}</label>
                   <input type="number" 
                          name="price" 
                          id="price"
@@ -74,7 +79,7 @@
               </div>
               <div class="col-md-3">
                 <div class="mb-3">
-                  <label for="currency" class="form-label">Currency</label>
+                  <label for="currency" class="form-label">{{ __('Currency') }}</label>
                   <select name="currency" 
                           id="currency"
                           class="form-select @error('currency') is-invalid @enderror" 
@@ -92,7 +97,7 @@
               </div>
               <div class="col-md-3">
                 <div class="mb-3">
-                  <label for="no_of_items" class="form-label">Stock (Items Available)</label>
+                  <label for="no_of_items" class="form-label">{{ __('Stock (Items Available)') }}</label>
                   <input type="number" 
                          name="no_of_items" 
                          id="no_of_items"
@@ -107,9 +112,9 @@
               </div>
               <div class="col-md-3">
                 <div class="mb-3">
-                  <label for="category_id" class="form-label">Category</label>
+                  <label for="category_id" class="form-label">{{ __('Category') }}</label>
                   <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror" required>
-                    <option value="">Select a category</option>
+                    <option value="">{{ __('Select a category') }}</option>
                     @foreach ($categories as $category)
                       <option value="{{ $category->id }}" 
                               {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
@@ -128,8 +133,8 @@
             @if($product->images->count() > 0)
               <div class="mb-3">
                 <label class="form-label">
-                  Current Images 
-                  <small class="text-muted">(Click to view full size)</small>
+                  {{ __('Current Images') }} 
+                  <small class="text-muted">{{ __('(Click to view full size)') }}</small>
                 </label>
                 <div class="row">
                   @foreach($product->images as $index => $image)
@@ -138,7 +143,7 @@
                         <img src="{{ $image->url }}" 
                              class="card-img-top product-image clickable-image" 
                              style="height: 200px; object-fit: cover; cursor: pointer;" 
-                             alt="Product Image {{ $index + 1 }}"
+                             alt="{{ __('Product Image') }} {{ $index + 1 }}"
                              data-index="{{ $index }}"
                              onclick="openImageModal({{ $index }})">
                         
@@ -152,9 +157,9 @@
                           <button type="button" 
                                   class="btn btn-sm btn-danger w-100" 
                                   onclick="deleteProductImage({{ $image->id }})"
-                                  title="Delete this image">
+                                  title="{{ __('Delete this image') }}">
                             <i class="fas fa-trash me-1"></i>
-                            Delete
+                            {{ __('Delete') }}
                           </button>
                         </div>
                       </div>
@@ -166,7 +171,7 @@
 
             <!-- Add New Images -->
             <div class="mb-3">
-              <label for="images" class="form-label">Add New Images (Optional)</label>
+              <label for="images" class="form-label">{{ __('Add New Images (Optional)') }}</label>
               <input type="file" 
                      name="images[]" 
                      id="images"
@@ -176,32 +181,32 @@
               @error('images.*')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
-              <div class="form-text">You can upload additional images. Maximum size: 8MB per image.</div>
+              <div class="form-text">{{ __('You can upload additional images. Maximum size: 8MB per image.') }}</div>
             </div>
 
             <!-- YouTube Videos -->
             <div class="mb-3">
-              <label for="videos" class="form-label">YouTube Video URLs (Optional)</label>
+              <label for="videos" class="form-label">{{ __('YouTube Video URLs (Optional)') }}</label>
               <textarea name="videos" 
                         id="videos"
                         class="form-control @error('videos') is-invalid @enderror" 
                         rows="5"
-                        placeholder="Enter YouTube URLs, one per line:&#10;https://www.youtube.com/watch?v=VIDEO_ID&#10;https://youtu.be/VIDEO_ID&#10;https://www.youtube.com/embed/VIDEO_ID">{{ old('videos', $product->videos->pluck('url')->implode("\n")) }}</textarea>
+                        placeholder="{{ __('Enter YouTube URLs, one per line:') }}&#10;https://www.youtube.com/watch?v=VIDEO_ID&#10;https://youtu.be/VIDEO_ID&#10;https://www.youtube.com/embed/VIDEO_ID">{{ old('videos', $product->videos->pluck('url')->implode("\n")) }}</textarea>
               @error('videos')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
               <div class="form-text">
-                <strong>Supported formats:</strong><br>
+                <strong>{{ __('Supported formats:') }}</strong><br>
                 • https://www.youtube.com/watch?v=VIDEO_ID<br>
                 • https://youtu.be/VIDEO_ID<br>
                 • https://www.youtube.com/embed/VIDEO_ID<br>
-                Enter one URL per line. Leave empty to remove all videos.
+                {{ __('Enter one URL per line. Leave empty to remove all videos.') }}
               </div>
             </div>
 
             <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary">Update Product</button>
-              <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">{{ __('Update Product') }}</button>
+              <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
             </div>
           </form>
         </div>
@@ -211,28 +216,28 @@
     <div class="col-md-4">
       <div class="card bg-light">
         <div class="card-body">
-          <h5 class="card-title">📊 Product Stats</h5>
+          <h5 class="card-title">📊 {{ __('Product Stats') }}</h5>
           <ul class="list-unstyled">
             <li class="mb-2">
-              <strong>Stock:</strong> 
+              <strong>{{ __('Stock') }}:</strong> 
               <span class="badge bg-{{ $product->getStockStatus() === 'out_of_stock' ? 'danger' : ($product->getStockStatus() === 'low_stock' ? 'warning' : 'success') }}">
-                {{ $product->no_of_items }} items
+                {{ $product->no_of_items }} {{ __('items') }}
               </span>
             </li>
             <li class="mb-2">
-              <strong>Images:</strong> {{ $product->images->count() }} uploaded
+              <strong>{{ __('Images') }}:</strong> {{ $product->images->count() }} {{ __('uploaded') }}
             </li>
             <li class="mb-2">
-              <strong>Videos:</strong> {{ $product->videos->count() }} YouTube videos
+              <strong>{{ __('Videos') }}:</strong> {{ $product->videos->count() }} {{ __('YouTube videos') }}
             </li>
             <li class="mb-2">
-              <strong>Category:</strong> {{ $product->category->name ?? 'None' }}
+              <strong>{{ __('Category') }}:</strong> {{ $product->category->name ?? __('None') }}
             </li>
             <li class="mb-2">
-              <strong>Created:</strong> {{ $product->created_at->format('M d, Y') }}
+              <strong>{{ __('Created') }}:</strong> {{ $product->created_at->format('M d, Y') }}
             </li>
             <li class="mb-2">
-              <strong>Updated:</strong> {{ $product->updated_at->format('M d, Y') }}
+              <strong>{{ __('Updated') }}:</strong> {{ $product->updated_at->format('M d, Y') }}
             </li>
           </ul>
         </div>
@@ -240,13 +245,13 @@
 
       <div class="card mt-3">
         <div class="card-body">
-          <h5 class="card-title">⚠️ Danger Zone</h5>
-          <p class="text-muted">Permanently delete this product and all its associated data.</p>
-          <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('Are you sure you want to delete this product? This action cannot be undone and will remove all images, videos, and related data.')">
+          <h5 class="card-title">⚠️ {{ __('Danger Zone') }}</h5>
+          <p class="text-muted">{{ __('Permanently delete this product and all its associated data.') }}</p>
+          <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this product? This action cannot be undone and will remove all images, videos, and related data.') }}')">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-danger btn-sm w-100">
-              Delete Product
+              {{ __('Delete Product') }}
             </button>
           </form>
         </div>
@@ -303,7 +308,7 @@
       <div class="modal-header border-0">
         <h5 class="modal-title text-white" id="imageModalLabel">
           <i class="fas fa-images me-2"></i>
-          Product Images
+          {{ __('Product Images') }}
           <span id="imageCounter" class="badge bg-primary ms-2"></span>
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

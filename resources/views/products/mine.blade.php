@@ -37,7 +37,7 @@
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="h5 mb-0 text-primary">{{ $product->formatted_price }}</span>
                 @if($product->category)
-                  <span class="badge bg-secondary">{{ $product->category->name }}</span>
+                  <span class="badge bg-secondary">{{ __($product->category->name) }}</span>
                 @endif
               </div>
               <div class="d-flex justify-content-between align-items-center">

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Order Details')
+@section('title', __('Order Details'))
 
 @section('content')
 <div class="container py-5">
   <div class="row">
     <div class="col-md-8">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Order #{{ $order->id }}</h1>
+        <h1>{{ __('Order #:id', ['id' => $order->id]) }}</h1>
         <span class="badge bg-{{ $order->getStatusColor() }}" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ $order->getFormattedStatus() }}</span>
       </div>
 
@@ -32,25 +32,25 @@
               
               <div class="row mb-3">
                 <div class="col-sm-6">
-                  <strong>Unit Price:</strong> ${{ $order->product->price }}
+                  <strong>{{ __('Unit Price') }}:</strong> ${{ $order->product->price }}
                 </div>
                 <div class="col-sm-6">
-                  <strong>Quantity:</strong> {{ $order->quantity }}
+                  <strong>{{ __('Quantity') }}:</strong> {{ $order->quantity }}
                 </div>
               </div>
               
               <div class="row mb-3">
                 <div class="col-sm-6">
-                  <strong>Total Price:</strong> ${{ $order->total_price }}
+                  <strong>{{ __('Total Price') }}:</strong> ${{ $order->total_price }}
                 </div>
                 <div class="col-sm-6">
-                  <strong>Order Date:</strong> {{ $order->created_at->format('M d, Y \a\t g:i A') }}
+                  <strong>{{ __('Order Date') }}:</strong> {{ $order->created_at->format('M d, Y \a\t g:i A') }}
                 </div>
               </div>
               
               @if($order->note)
                 <div class="mb-3">
-                  <strong>Note:</strong>
+                  <strong>{{ __('Note') }}:</strong>
                   <p class="mt-1">{{ $order->note }}</p>
                 </div>
               @endif
@@ -63,34 +63,34 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Order Actions</h5>
+          <h5 class="card-title">{{ __('Order Actions') }}</h5>
           
           @if($order->canBeCancelled())
             <form method="POST" action="{{ route('orders.cancel', $order) }}" 
-                  onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.')">
+                  onsubmit="return confirm('{{ __('Are you sure you want to cancel this order? This action cannot be undone.') }}')">
               @csrf
-              <button type="submit" class="btn btn-danger w-100 mb-3">Cancel Order</button>
+              <button type="submit" class="btn btn-danger w-100 mb-3">{{ __('Cancel Order') }}</button>
             </form>
           @endif
           
           <a href="{{ route('products.show', $order->product) }}" class="btn btn-outline-primary w-100 mb-2">
-            View Product
+            {{ __('View Product') }}
           </a>
           
           <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary w-100">
-            Back to Orders
+            {{ __('Back to Orders') }}
           </a>
         </div>
       </div>
       
       <div class="card mt-3">
         <div class="card-body">
-          <h5 class="card-title">Order Timeline</h5>
+          <h5 class="card-title">{{ __('Order Timeline') }}</h5>
           <div class="timeline">
             <div class="timeline-item">
               <i class="fas fa-shopping-cart text-primary"></i>
               <div class="timeline-content">
-                <h6>Order Placed</h6>
+                <h6>{{ __('Order Placed') }}</h6>
                 <small class="text-muted">{{ $order->created_at->format('M d, Y \a\t g:i A') }}</small>
               </div>
             </div>
@@ -99,24 +99,24 @@
               <div class="timeline-item">
                 <i class="fas fa-cog text-info"></i>
                 <div class="timeline-content">
-                  <h6>Processing</h6>
-                  <small class="text-muted">Order is being processed</small>
+                  <h6>{{ __('Processing') }}</h6>
+                  <small class="text-muted">{{ __('Order is being processed') }}</small>
                 </div>
               </div>
             @elseif($order->status === 'completed')
               <div class="timeline-item">
                 <i class="fas fa-check text-success"></i>
                 <div class="timeline-content">
-                  <h6>Completed</h6>
-                  <small class="text-muted">Order completed</small>
+                  <h6>{{ __('Completed') }}</h6>
+                  <small class="text-muted">{{ __('Order completed') }}</small>
                 </div>
               </div>
             @elseif($order->status === 'cancelled')
               <div class="timeline-item">
                 <i class="fas fa-times text-danger"></i>
                 <div class="timeline-content">
-                  <h6>Cancelled</h6>
-                  <small class="text-muted">Order was cancelled</small>
+                  <h6>{{ __('Cancelled') }}</h6>
+                  <small class="text-muted">{{ __('Order was cancelled') }}</small>
                 </div>
               </div>
             @endif

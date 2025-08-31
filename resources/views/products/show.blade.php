@@ -67,7 +67,7 @@
     </div>
     <div class="col-md-6">
       <h1>{{ $product->name }}</h1>
-      <p class="text-muted mb-1">{{ __('By') }}: {{ $product->user->name ?? '-' }}</p>
+      <p class="text-muted mb-1">{{ __('Added By') }}: {{ $product->user->name ?? '-' }}</p>
       <p class="lead">{{ $product->formatted_price }}</p>
       
       <!-- Stock Status -->
@@ -81,7 +81,7 @@
         @endif
       </div>
       
-      <p>{{ $product->description }}</p>
+      <p style="white-space: pre-wrap;">{{ $product->description }}</p>
       
       @auth
         <!-- Contact Seller Button -->

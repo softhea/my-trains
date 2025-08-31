@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'My Orders')
+@section('title', __('My Orders'))
 
 @section('content')
 <div class="container py-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>My Orders</h1>
-    <a href="{{ route('home') }}" class="btn btn-primary">Continue Shopping</a>
+    <h1>{{ __('My Orders') }}</h1>
+    <a href="{{ route('home') }}" class="btn btn-primary">{{ __('Continue Shopping') }}</a>
   </div>
 
   @if($orders->count() > 0)
@@ -16,7 +16,7 @@
           <div class="card">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start mb-3">
-                <h5 class="card-title">Order #{{ $order->id }}</h5>
+                <h5 class="card-title">{{ __('Order #:id', ['id' => $order->id]) }}</h5>
                 <span class="badge bg-{{ $order->getStatusColor() }} px-3 py-2">{{ $order->getFormattedStatus() }}</span>
               </div>
               
@@ -35,20 +35,20 @@
                 <div class="col-8">
                   <h6 class="mb-1">{{ $order->product->name }}</h6>
                   <p class="text-muted small mb-1">{{ __('By') }}: {{ $order->product->user->name ?? ($order->seller->name ?? '-') }}</p>
-                  <p class="text-muted small mb-1">Quantity: {{ $order->quantity }}</p>
-                  <p class="text-muted small mb-0">Total: ${{ $order->total_price }}</p>
+                  <p class="text-muted small mb-1">{{ __('Quantity') }}: {{ $order->quantity }}</p>
+                  <p class="text-muted small mb-0">{{ __('Total') }}: ${{ $order->total_price }}</p>
                 </div>
               </div>
               
               <div class="d-flex justify-content-between align-items-center">
                 <small class="text-muted">{{ $order->created_at->format('M d, Y') }}</small>
                 <div>
-                  <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-primary">View</a>
+                  <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-primary">{{ __('View') }}</a>
                   @if($order->canBeCancelled())
                     <form method="POST" action="{{ route('orders.cancel', $order) }}" class="d-inline" 
-                          onsubmit="return confirm('Are you sure you want to cancel this order?')">
+                          onsubmit="return confirm('{{ __('Are you sure you want to cancel this order?') }}')">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                      <button type="submit" class="btn btn-sm btn-outline-danger">{{ __('Cancel') }}</button>
                     </form>
                   @endif
                 </div>
@@ -65,9 +65,9 @@
   @else
     <div class="text-center py-5">
       <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
-      <h3>No orders yet</h3>
-      <p class="text-muted">You haven't placed any orders yet. Start shopping to see your orders here.</p>
-      <a href="{{ route('home') }}" class="btn btn-primary">Start Shopping</a>
+      <h3>{{ __('No orders yet') }}</h3>
+      <p class="text-muted">{{ __('You haven\'t placed any orders yet. Start shopping to see your orders here.') }}</p>
+      <a href="{{ route('home') }}" class="btn btn-primary">{{ __('Start Shopping') }}</a>
     </div>
   @endif
 </div>
