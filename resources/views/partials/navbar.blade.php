@@ -180,6 +180,12 @@
                 </a>
               </li>
               <li>
+                <a class="dropdown-item" href="{{ route('seller.orders.index') }}">
+                  <i class="fas fa-clipboard-list me-2"></i>
+                  {{ __('My Product Orders') }}
+                </a>
+              </li>
+              <li>
                 <a class="dropdown-item" href="{{ route('messages.index') }}">
                   <i class="fas fa-envelope me-2"></i>
                   {{ __('My Messages') }}

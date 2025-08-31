@@ -141,6 +141,17 @@ Route::middleware('setlocale')->group(function () {
             ->name('admin.categories.images.destroy')
             ->middleware('permission:categories.delete');
 
+        // Seller Order Management (for users to manage orders of their products)
+        Route::get('/my-orders', [AdminOrderController::class, 'index'])
+            ->name('seller.orders.index')
+            ->middleware('auth');
+        Route::get('/my-orders/{order}', [AdminOrderController::class, 'show'])
+            ->name('seller.orders.show')
+            ->middleware('auth');
+        Route::put('/my-orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
+            ->name('seller.orders.update-status')
+            ->middleware('auth');
+
         // Order Management
         Route::get('/orders', [AdminOrderController::class, 'index'])
             ->name('admin.orders.index')

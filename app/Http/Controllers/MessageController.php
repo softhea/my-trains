@@ -1,39 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Message;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class MessageController extends Controller
 {
     /**
      * Display the user's inbox
      */
-    public function index()
+    public function index(): View
     {
         $user = Auth::user();
         
         // Get conversations grouped by sender/receiver
         $conversations = Message::where(function ($query) use ($user) {
             $query->where('sender_id', $user->id)
-                  ->orWhere('receiver_id', $user->id);
+                ->orWhere('receiver_id', $user->id);
         })
-        ->with(['sender', 'receiver', 'product'])
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->groupBy(function ($message) use ($user) {
-            // Group by the "other" user in the conversation
-            return $message->sender_id === $user->id 
-                ? $message->receiver_id 
-                : $message->sender_id;
-        })
-        ->map(function ($messages) {
-            return $messages->sortByDesc('created_at');
-        });
+            ->with(['sender', 'receiver', 'product'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy(function ($message) use ($user) {
+                // Group by the "other" user in the conversation
+                return $message->sender_id === $user->id 
+                    ? $message->receiver_id 
+                    : $message->sender_id;
+            })
+            ->map(function ($messages) {
+                return $messages->sortByDesc('created_at');
+            });
 
         return view('messages.index', compact('conversations'));
     }
@@ -41,12 +45,13 @@ class MessageController extends Controller
     /**
      * Show conversation with a specific user
      */
-    public function conversation(User $user)
+    public function conversation(User $user): RedirectResponse|View
     {
         $currentUser = Auth::user();
         
         if ($user->id === $currentUser->id) {
-            return redirect()->route('messages.index')
+            return redirect()
+                ->route('messages.index',  false)
                 ->with('error', __('You cannot message yourself.'));
         }
 
@@ -61,14 +66,26 @@ class MessageController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        return view('messages.conversation', compact('user', 'messages'));
+        return view(
+            'messages.conversation', 
+            compact('user', 'messages')
+        );
     }
 
     /**
      * Show form to send message
      */
-    public function create(Request $request)
+    public function create(Request $request): RedirectResponse|View
     {
+        if (!auth()->user()->isVerified()) {
+            return redirect()
+                ->route('messages.index', false)
+                ->with(
+                    'error', 
+                    __('Please verify your email to send messages.')
+                );
+        }
+
         $receiver = null;
         $product = null;
         $subject = '';
@@ -102,8 +119,17 @@ class MessageController extends Controller
     /**
      * Store a new message
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
+        if (!auth()->user()->isVerified()) {
+            return redirect()
+                ->route('messages.index', false)
+                ->with(
+                    'error', 
+                    __('Please verify your email to send messages.')
+                );
+        }
+
         $request->validate([
             'receiver_id' => 'required|exists:users,id',
             'product_id' => 'nullable|exists:products,id',
@@ -123,7 +149,11 @@ class MessageController extends Controller
             'message' => $request->message,
         ]);
 
-        return redirect()->route('messages.conversation', $request->receiver_id)
+        return redirect()
+            ->route(
+                'messages.conversation', 
+                $request->receiver_id
+            )
             ->with('success', __('Message sent successfully!'));
     }
 

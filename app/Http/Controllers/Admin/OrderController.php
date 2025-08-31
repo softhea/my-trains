@@ -12,22 +12,44 @@ class OrderController extends Controller
     {
         $query = Order::with(['user', 'product']);
 
-        // Non-admins see only orders for their own products
-        if (!auth()->user()->isAdmin()) {
+        // Determine if this is a seller route or admin route
+        $isSellerRoute = request()->routeIs('seller.*');
+
+        if ($isSellerRoute) {
+            // Seller routes: show only orders for current user's products
             $query->whereHas('product', function ($q) {
                 $q->where('user_id', auth()->id());
             });
+            $view = 'seller.orders.index';
+        } else {
+            // Admin routes: admins see all orders, non-admins see only their product orders
+            if (!auth()->user()->isAdmin()) {
+                $query->whereHas('product', function ($q) {
+                    $q->where('user_id', auth()->id());
+                });
+            }
+            $view = 'admin.orders.index';
         }
 
         $orders = $query->latest()->paginate(20);
 
-        return view('admin.orders.index', compact('orders'));
+        return view($view, compact('orders'));
     }
 
     public function show(Order $order)
     {
         $order->load(['user', 'product']);
-        return view('admin.orders.show', compact('order'));
+
+        // Check if user can view this order
+        if (!auth()->user()->isAdmin() && $order->product->user_id !== auth()->id()) {
+            abort(403, 'You can only view orders for your own products.');
+        }
+
+        // Determine view based on route
+        $isSellerRoute = request()->routeIs('seller.*');
+        $view = $isSellerRoute ? 'seller.orders.show' : 'admin.orders.show';
+
+        return view($view, compact('order'));
     }
 
     public function updateStatus(Request $request, Order $order)
@@ -39,34 +61,58 @@ class OrderController extends Controller
         $oldStatus = $order->status;
         $newStatus = $request->status;
 
-        // If changing from cancelled to any other status, reduce stock again
-        if ($oldStatus === 'cancelled' && $newStatus !== 'cancelled') {
+        // Check if user can manage this order (admin or product owner)
+        if (!auth()->user()->isAdmin() && $order->product->user_id !== auth()->id()) {
+            abort(403, 'You can only manage orders for your own products.');
+        }
+
+        // Stock management logic:
+        // - Stock is reduced when moving from 'pending' to 'processing' (seller accepts)
+        // - Stock is restored when moving from 'processing' or 'completed' to 'cancelled'
+        // - Stock is restored when moving from 'processing' back to 'pending' (seller rejects)
+
+        // If changing from pending to processing (seller accepts order)
+        if ($oldStatus === 'pending' && $newStatus === 'processing') {
             if (!$order->product->hasStock($order->quantity)) {
-                return back()->with('error', 'Not enough stock available to update this order.');
+                return back()->with('error', __('Not enough stock available to accept this order.'));
             }
             $order->product->reduceStock($order->quantity);
         }
 
-        // If changing to cancelled from any other status, restore stock
-        if ($oldStatus !== 'cancelled' && $newStatus === 'cancelled') {
+        // If changing from processing back to pending (seller rejects after accepting)
+        if ($oldStatus === 'processing' && $newStatus === 'pending') {
             $order->product->restoreStock($order->quantity);
+        }
+
+        // If changing to cancelled from processing or completed, restore stock
+        if (in_array($oldStatus, ['processing', 'completed']) && $newStatus === 'cancelled') {
+            $order->product->restoreStock($order->quantity);
+        }
+
+        // If changing from cancelled to processing, reduce stock again
+        if ($oldStatus === 'cancelled' && $newStatus === 'processing') {
+            if (!$order->product->hasStock($order->quantity)) {
+                return back()->with('error', __('Not enough stock available to update this order.'));
+            }
+            $order->product->reduceStock($order->quantity);
         }
 
         $order->update(['status' => $newStatus]);
 
-        return back()->with('success', 'Order status updated successfully.');
+        return back()->with('success', __('Order status updated successfully.'));
     }
 
     public function destroy(Order $order)
     {
-        // Restore stock if the order wasn't cancelled
-        if ($order->status !== 'cancelled') {
+        // Restore stock only if the order was in processing or completed status
+        // (since pending orders never reduced stock)
+        if (in_array($order->status, ['processing', 'completed'])) {
             $order->product->restoreStock($order->quantity);
         }
 
         $order->delete();
 
         return redirect()->route('admin.orders.index')
-            ->with('success', 'Order deleted successfully.');
+            ->with('success', __('Order deleted successfully.'));
     }
 }

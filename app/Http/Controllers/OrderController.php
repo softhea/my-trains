@@ -44,8 +44,7 @@ class OrderController extends Controller
                     'status' => 'pending',
                 ]);
 
-                // Reduce stock
-                $product->reduceStock($request->quantity);
+                // Stock is NOT reduced here - it will be reduced when seller accepts (status -> processing)
             });
 
             return back()->with('success', __('Order placed successfully! We\'ll contact you soon.'));
