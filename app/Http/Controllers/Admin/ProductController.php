@@ -34,7 +34,7 @@ public function index(): View
     public function store(Request $request): RedirectResponse
     {
         // Debug file upload issues before validation
-        if ($request->hasFile('images')) {
+        if ($request->has('images')) {
             foreach ($request->file('images') as $index => $file) {
                 if ($file && !$file->isValid()) {
                     $error = $file->getErrorMessage();
@@ -74,7 +74,7 @@ public function index(): View
         ]);
 
         // Handle image uploads
-        if ($request->hasFile('images')) {
+        if ($request->has('images')) {
             foreach ($request->file('images') as $index => $img) {
                 try {
                     // Check if file is valid
@@ -180,7 +180,7 @@ public function index(): View
         }
 
         // Debug file upload issues before validation
-        if ($request->hasFile('images')) {
+        if ($request->has('images')) {
             foreach ($request->file('images') as $index => $file) {
                 if ($file && !$file->isValid()) {
                     $error = $file->getErrorMessage();
@@ -217,7 +217,7 @@ public function index(): View
         $product->update($request->only('name', 'description', 'price', 'no_of_items', 'category_id'));
 
         // Handle image uploads
-        if ($request->hasFile('images')) {
+        if ($request->has('images')) {
             foreach ($request->file('images') as $index => $img) {
                 try {
                     // Check if file is valid

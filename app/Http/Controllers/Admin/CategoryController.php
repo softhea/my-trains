@@ -38,7 +38,7 @@ class CategoryController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Debug file upload issues before validation
-        if ($request->hasFile('images')) {
+        if ($request->has('images')) {
             foreach ($request->file('images') as $index => $file) {
                 if ($file && !$file->isValid()) {
                     $error = $file->getErrorMessage();
@@ -71,7 +71,7 @@ class CategoryController extends Controller
         $category = Category::create($request->only('name', 'parent_id'));
 
         // Handle image uploads
-        if ($request->hasFile('images')) {
+        if ($request->has('images')) {
             foreach ($request->file('images') as $index => $img) {
                 try {
                     // Check if file is valid
@@ -154,7 +154,7 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category): RedirectResponse
     {
         // Debug file upload issues before validation
-        if ($request->hasFile('images')) {
+        if ($request->has('images')) {
             foreach ($request->file('images') as $index => $file) {
                 if ($file && !$file->isValid()) {
                     $error = $file->getErrorMessage();
@@ -192,7 +192,7 @@ class CategoryController extends Controller
         $category->update($request->only('name', 'parent_id'));
 
         // Handle image uploads
-        if ($request->hasFile('images')) {
+        if ($request->has('images')) {
             foreach ($request->file('images') as $index => $img) {
                 try {
                     // Check if file is valid
