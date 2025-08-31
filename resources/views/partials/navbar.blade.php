@@ -182,7 +182,7 @@
               <li>
                 <a class="dropdown-item" href="{{ route('messages.index') }}">
                   <i class="fas fa-envelope me-2"></i>
-                  {{ __('Messages') }}
+                  {{ __('My Messages') }}
                 </a>
               </li>
               <li>

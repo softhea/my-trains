@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Image;
-use App\Models\Video;
 use App\Models\Category;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class ProductController extends Controller
 {
@@ -63,15 +67,27 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully!');
     }
 
-    public function edit(Product $product)
+    public function edit(Product $product): View
     {
+        if (!auth()->user()->isAdmin() && $product->user_id !== auth()->id()) {
+            abort(403, 'You are not authorized to edit this product.');
+        }
+
         $categories = Category::all();
         $product->load('images', 'videos');
-        return view('admin.products.edit', compact('product', 'categories'));
+
+        return view(
+            'admin.products.edit', 
+            compact('product', 'categories')
+        );
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product): RedirectResponse
     {
+        if (!auth()->user()->isAdmin() && $product->user_id !== auth()->id()) {
+            abort(403, 'You are not authorized to edit this product.');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -113,8 +129,15 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
     }
 
-    public function destroy(Product $product)
+    public function destroy(Product $product): RedirectResponse
     {
+        /**
+         * todo use permission
+         */
+        if (!auth()->user()->isAdmin() && $product->user_id !== auth()->id()) {
+            abort(403, 'You are not authorized to delete this product.');
+        }
+
         // Delete product images from storage
         foreach ($product->images as $image) {
             $path = str_replace('/storage/', '', $image->url);
@@ -124,10 +147,10 @@ class ProductController extends Controller
         // Delete the product (cascade will handle images and videos)
         $product->delete();
 
-        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully!');
+        return redirect()->route('admin.products.index')->with('success', __('Product deleted successfully!'));
     }
 
-    public function deleteImage(Image $image)
+    public function deleteImage(Image $image): JsonResponse
     {
         // Verify the image belongs to a product
         if ($image->imageable_type !== Product::class) {
@@ -141,6 +164,8 @@ class ProductController extends Controller
         // Delete from database
         $image->delete();
 
-        return response()->json(['success' => 'Image deleted successfully']);
+        return response()->json([
+            'success' => 'Image deleted successfully'
+        ]);
     }
 }

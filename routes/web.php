@@ -83,22 +83,30 @@ Route::middleware('setlocale')->group(function () {
         // Product Management
         Route::get('/products', [AdminProductController::class, 'index'])
             ->name('admin.products.index')
-            ->middleware('permission:products.view');
+            ->middleware('permission:products.edit');
         Route::get('/products/create', [AdminProductController::class, 'create'])
             ->name('admin.products.create')
             ->middleware('permission:products.create');
         Route::post('/products', [AdminProductController::class, 'store'])
             ->name('admin.products.store')
             ->middleware('permission:products.create');
+        
         Route::get('/products/{product}/edit', [AdminProductController::class, 'edit'])
-            ->name('admin.products.edit')
-            ->middleware('permission:products.view');
+            ->name('admin.products.edit');
+            /**
+             * todo
+             */
+            //->middleware('permission:products.view');
         Route::put('/products/{product}', [AdminProductController::class, 'update'])
-            ->name('admin.products.update')
-            ->middleware('permission:products.edit');
+            ->name('admin.products.update');
+            /**
+             * todo use my-products/{product} for own products
+             */
+            //->middleware('permission:products.edit');
+
         Route::delete('/products/{product}', [AdminProductController::class, 'destroy'])
-            ->name('admin.products.destroy')
-            ->middleware('permission:products.delete');
+            ->name('admin.products.destroy');
+            //->middleware('permission:products.delete');
 
         // Category Management
         Route::get('/categories', [AdminCategoryController::class, 'index'])
