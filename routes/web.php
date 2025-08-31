@@ -30,7 +30,7 @@ Route::middleware('setlocale')->group(function () {
         ->name('products.show');
     Route::post('/order', [OrderController::class, 'store'])
         ->name('order.store')
-        ->middleware('auth');
+        ->middleware(['auth', 'verified']);
 
     Route::middleware(['auth'])->group(function () {
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -79,6 +79,9 @@ Route::middleware('setlocale')->group(function () {
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])
             ->name('admin.users.destroy')
             ->middleware('permission:users.delete');
+        Route::patch('/users/{user}/toggle-verification', [AdminUserController::class, 'toggleEmailVerification'])
+            ->name('admin.users.toggle-verification')
+            ->middleware('permission:users.edit');
 
         // Product Management
         Route::get('/products', [AdminProductController::class, 'index'])
@@ -89,7 +92,7 @@ Route::middleware('setlocale')->group(function () {
             ->middleware('permission:products.create');
         Route::post('/products', [AdminProductController::class, 'store'])
             ->name('admin.products.store')
-            ->middleware('permission:products.create');
+            ->middleware(['permission:products.create', 'verified']);
         
         Route::get('/products/{product}/edit', [AdminProductController::class, 'edit'])
             ->name('admin.products.edit');
@@ -98,7 +101,8 @@ Route::middleware('setlocale')->group(function () {
              */
             //->middleware('permission:products.view');
         Route::put('/products/{product}', [AdminProductController::class, 'update'])
-            ->name('admin.products.update');
+            ->name('admin.products.update')
+            ->middleware('verified');
             /**
              * todo use my-products/{product} for own products
              */

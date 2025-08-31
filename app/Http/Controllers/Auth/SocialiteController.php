@@ -49,10 +49,11 @@ class SocialiteController extends Controller
             $existingUser = User::where('email', $googleUser->email)->first();
             
             if ($existingUser) {
-                // Link Google account to existing user
+                // Link Google account to existing user and auto-verify
                 $existingUser->update([
                     'google_id' => $googleUser->id,
                     'avatar' => $googleUser->avatar,
+                    'email_verified_at' => $existingUser->email_verified_at ?: now(), // Auto-verify if not already verified
                 ]);
                 
                 Auth::login($existingUser);
@@ -100,11 +101,12 @@ class SocialiteController extends Controller
             $existingUser = User::where('email', $appleUser->email)->first();
             
             if ($existingUser) {
-                // Link Apple account to existing user
+                // Link Apple account to existing user and auto-verify
                 $existingUser->update([
                     'apple_id' => $appleUser->id,
                     // Note: Apple doesn't always provide avatar
                     'avatar' => $existingUser->avatar ?: ($appleUser->avatar ?? null),
+                    'email_verified_at' => $existingUser->email_verified_at ?: now(), // Auto-verify if not already verified
                 ]);
                 
                 Auth::login($existingUser);

@@ -131,4 +131,27 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
+
+    /**
+     * Toggle email verification status.
+     */
+    public function toggleEmailVerification(User $user)
+    {
+        // Prevent changing verification status of protected users by non-superadmins
+        if ($user->is_protected && !auth()->user()->isSuperAdmin()) {
+            abort(403, 'Cannot modify verification status of protected user.');
+        }
+
+        if ($user->email_verified_at) {
+            // Unverify user
+            $user->update(['email_verified_at' => null]);
+            $action = 'unverified';
+        } else {
+            // Verify user
+            $user->update(['email_verified_at' => now()]);
+            $action = 'verified';
+        }
+
+        return back()->with('success', "User email has been {$action} successfully.");
+    }
 }

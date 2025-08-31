@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             'setlocale' => \App\Http\Middleware\SetLocale::class,
+            'verified' => \App\Http\Middleware\RequireEmailVerification::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

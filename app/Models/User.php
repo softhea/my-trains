@@ -201,4 +201,68 @@ class User extends Authenticatable
             ->limit($limit)
             ->get();
     }
+
+    /**
+     * Get the authentication provider for this user.
+     */
+    public function getAuthProviderAttribute(): string
+    {
+        if ($this->google_id) {
+            return 'Google';
+        }
+        
+        if ($this->apple_id) {
+            return 'Apple';
+        }
+        
+        return 'Email';
+    }
+
+    /**
+     * Check if user signed up via Google.
+     */
+    public function isGoogleUser(): bool
+    {
+        return !empty($this->google_id);
+    }
+
+    /**
+     * Check if user signed up via Apple.
+     */
+    public function isAppleUser(): bool
+    {
+        return !empty($this->apple_id);
+    }
+
+    /**
+     * Check if user signed up via social providers.
+     */
+    public function isSocialUser(): bool
+    {
+        return $this->isGoogleUser() || $this->isAppleUser();
+    }
+
+    /**
+     * Check if user is verified (has email_verified_at set).
+     */
+    public function isVerified(): bool
+    {
+        return !is_null($this->email_verified_at);
+    }
+
+    /**
+     * Check if user can add products (must be verified).
+     */
+    public function canAddProducts(): bool
+    {
+        return $this->isVerified();
+    }
+
+    /**
+     * Check if user can place orders (must be verified).
+     */
+    public function canPlaceOrders(): bool
+    {
+        return $this->isVerified();
+    }
 }

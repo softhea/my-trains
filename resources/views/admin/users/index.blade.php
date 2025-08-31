@@ -39,6 +39,7 @@
                                     <th>Profile</th>
                                     <th>Name</th>
                                     <th>Email</th>
+                                    <th>Provider</th>
                                     <th>Role</th>
                                     <th>Phone</th>
                                     <th>City</th>
@@ -72,6 +73,21 @@
                                         </td>
                                         <td>{{ $user->email }}</td>
                                         <td>
+                                            @if($user->auth_provider === 'Google')
+                                                <span class="badge bg-danger">
+                                                    <i class="fab fa-google me-1"></i>Google
+                                                </span>
+                                            @elseif($user->auth_provider === 'Apple')
+                                                <span class="badge bg-dark">
+                                                    <i class="fab fa-apple me-1"></i>Apple
+                                                </span>
+                                            @else
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-envelope me-1"></i>Email
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
                                             <span class="badge bg-{{ $user->role->name === 'superadmin' ? 'danger' : ($user->role->name === 'admin' ? 'warning' : 'primary') }}">
                                                 {{ $user->role->display_name ?? 'No Role' }}
                                             </span>
@@ -83,10 +99,30 @@
                                                 <span class="badge bg-success">
                                                     <i class="fas fa-check me-1"></i>Verified
                                                 </span>
+                                                <br>
+                                                <small class="text-muted">{{ $user->email_verified_at->format('M d, Y') }}</small>
                                             @else
-                                                <span class="badge bg-secondary">
-                                                    <i class="fas fa-clock me-1"></i>Pending
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-clock me-1"></i>Unverified
                                                 </span>
+                                            @endif
+                                            
+                                            @if(Auth::user()->hasPermission('users.edit') && (!$user->is_protected || auth()->user()->isSuperAdmin()))
+                                                <br>
+                                                <form method="POST" action="{{ route('admin.users.toggle-verification', $user) }}" class="d-inline mt-1">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" 
+                                                            class="btn btn-xs {{ $user->email_verified_at ? 'btn-outline-warning' : 'btn-outline-success' }}"
+                                                            style="font-size: 0.7rem; padding: 2px 6px;"
+                                                            onclick="return confirm('{{ $user->email_verified_at ? 'Are you sure you want to unverify this user?' : 'Are you sure you want to verify this user?' }}')">
+                                                        @if($user->email_verified_at)
+                                                            <i class="fas fa-times me-1"></i>Unverify
+                                                        @else
+                                                            <i class="fas fa-check me-1"></i>Verify
+                                                        @endif
+                                                    </button>
+                                                </form>
                                             @endif
                                         </td>
                                         <td>
@@ -177,7 +213,7 @@
                                     @endif
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center py-4">
+                                        <td colspan="9" class="text-center py-4">
                                             <i class="fas fa-users fa-3x text-muted mb-3"></i>
                                             <p class="text-muted">No users found.</p>
                                         </td>
