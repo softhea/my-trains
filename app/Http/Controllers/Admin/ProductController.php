@@ -11,6 +11,7 @@ use App\Models\Image;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -32,6 +33,31 @@ public function index(): View
 
     public function store(Request $request): RedirectResponse
     {
+        // Debug file upload issues before validation
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                if ($file && !$file->isValid()) {
+                    $error = $file->getErrorMessage();
+                    Log::error("File upload validation error before Laravel validation", [
+                        'file_index' => $index,
+                        'error_code' => $file->getError(),
+                        'error_message' => $error,
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_size' => $file->getSize(),
+                        'upload_max_filesize' => ini_get('upload_max_filesize'),
+                        'post_max_size' => ini_get('post_max_size'),
+                        'max_file_uploads' => ini_get('max_file_uploads'),
+                        'temp_dir' => sys_get_temp_dir(),
+                        'temp_dir_writable' => is_writable(sys_get_temp_dir()),
+                    ]);
+                    
+                    return back()->withErrors([
+                        'images' => "File upload failed for '{$file->getClientOriginalName()}': {$error}. Check server upload settings."
+                    ])->withInput();
+                }
+            }
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -95,7 +121,7 @@ public function index(): View
                     }
 
                 } catch (\Exception $e) {
-                    \Log::error("Product image upload error: " . $e->getMessage(), [
+                    Log::error("Product image upload error: " . $e->getMessage(), [
                         'product_id' => $product->id,
                         'file_index' => $index,
                         'file_name' => $img->getClientOriginalName(),
@@ -151,6 +177,31 @@ public function index(): View
     {
         if (!auth()->user()->isAdmin() && $product->user_id !== auth()->id()) {
             abort(403, 'You are not authorized to edit this product.');
+        }
+
+        // Debug file upload issues before validation
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                if ($file && !$file->isValid()) {
+                    $error = $file->getErrorMessage();
+                    Log::error("File upload validation error before Laravel validation", [
+                        'file_index' => $index,
+                        'error_code' => $file->getError(),
+                        'error_message' => $error,
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_size' => $file->getSize(),
+                        'upload_max_filesize' => ini_get('upload_max_filesize'),
+                        'post_max_size' => ini_get('post_max_size'),
+                        'max_file_uploads' => ini_get('max_file_uploads'),
+                        'temp_dir' => sys_get_temp_dir(),
+                        'temp_dir_writable' => is_writable(sys_get_temp_dir()),
+                    ]);
+                    
+                    return back()->withErrors([
+                        'images' => "File upload failed for '{$file->getClientOriginalName()}': {$error}. Check server upload settings."
+                    ])->withInput();
+                }
+            }
         }
 
         $request->validate([
@@ -213,7 +264,7 @@ public function index(): View
                     }
 
                 } catch (\Exception $e) {
-                    \Log::error("Product image upload error: " . $e->getMessage(), [
+                    Log::error("Product image upload error: " . $e->getMessage(), [
                         'product_id' => $product->id,
                         'file_index' => $index,
                         'file_name' => $img->getClientOriginalName(),

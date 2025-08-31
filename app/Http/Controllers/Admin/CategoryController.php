@@ -37,6 +37,31 @@ class CategoryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // Debug file upload issues before validation
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                if ($file && !$file->isValid()) {
+                    $error = $file->getErrorMessage();
+                    Log::error("File upload validation error before Laravel validation", [
+                        'file_index' => $index,
+                        'error_code' => $file->getError(),
+                        'error_message' => $error,
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_size' => $file->getSize(),
+                        'upload_max_filesize' => ini_get('upload_max_filesize'),
+                        'post_max_size' => ini_get('post_max_size'),
+                        'max_file_uploads' => ini_get('max_file_uploads'),
+                        'temp_dir' => sys_get_temp_dir(),
+                        'temp_dir_writable' => is_writable(sys_get_temp_dir()),
+                    ]);
+                    
+                    return back()->withErrors([
+                        'images' => "File upload failed for '{$file->getClientOriginalName()}': {$error}. Check server upload settings."
+                    ])->withInput();
+                }
+            }
+        }
+
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
             'parent_id' => 'nullable|exists:categories,id',
@@ -128,6 +153,31 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category): RedirectResponse
     {
+        // Debug file upload issues before validation
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                if ($file && !$file->isValid()) {
+                    $error = $file->getErrorMessage();
+                    Log::error("File upload validation error before Laravel validation", [
+                        'file_index' => $index,
+                        'error_code' => $file->getError(),
+                        'error_message' => $error,
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_size' => $file->getSize(),
+                        'upload_max_filesize' => ini_get('upload_max_filesize'),
+                        'post_max_size' => ini_get('post_max_size'),
+                        'max_file_uploads' => ini_get('max_file_uploads'),
+                        'temp_dir' => sys_get_temp_dir(),
+                        'temp_dir_writable' => is_writable(sys_get_temp_dir()),
+                    ]);
+                    
+                    return back()->withErrors([
+                        'images' => "File upload failed for '{$file->getClientOriginalName()}': {$error}. Check server upload settings."
+                    ])->withInput();
+                }
+            }
+        }
+
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'parent_id' => 'nullable|exists:categories,id',
