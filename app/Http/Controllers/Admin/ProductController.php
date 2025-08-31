@@ -49,9 +49,65 @@ public function index(): View
 
         // Handle image uploads
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $img) {
-                $path = $img->store('products', 'public');
-                $product->images()->create(['url' => "storage/$path"]);
+            foreach ($request->file('images') as $index => $img) {
+                try {
+                    // Check if file is valid
+                    if (!$img->isValid()) {
+                        throw new \Exception("Invalid image file at index $index");
+                    }
+
+                    // Check file size (additional check beyond validation)
+                    if ($img->getSize() > 8388608) { // 8MB in bytes
+                        throw new \Exception("Image file at index $index is too large (max 8MB)");
+                    }
+
+                    // Check if storage directory exists and is writable
+                    $storagePath = storage_path('app/public/products');
+                    if (!is_dir($storagePath)) {
+                        if (!mkdir($storagePath, 0755, true)) {
+                            throw new \Exception("Failed to create products storage directory");
+                        }
+                    }
+
+                    if (!is_writable($storagePath)) {
+                        throw new \Exception("Products storage directory is not writable. Check permissions.");
+                    }
+
+                    // Store the image
+                    $path = $img->store('products', 'public');
+                    
+                    if (!$path) {
+                        throw new \Exception("Failed to store image file at index $index");
+                    }
+
+                    // Verify the file was actually stored
+                    if (!Storage::disk('public')->exists($path)) {
+                        throw new \Exception("Image file was not properly saved at index $index");
+                    }
+
+                    // Create database record
+                    $imageRecord = $product->images()->create(['url' => "/storage/$path"]);
+                    
+                    if (!$imageRecord) {
+                        // Clean up the stored file if database insertion fails
+                        Storage::disk('public')->delete($path);
+                        throw new \Exception("Failed to save image record to database at index $index");
+                    }
+
+                } catch (\Exception $e) {
+                    \Log::error("Product image upload error: " . $e->getMessage(), [
+                        'product_id' => $product->id,
+                        'file_index' => $index,
+                        'file_name' => $img->getClientOriginalName(),
+                        'file_size' => $img->getSize(),
+                        'storage_path' => storage_path('app/public/products'),
+                        'permissions' => is_writable(storage_path('app/public/products')) ? 'writable' : 'not writable'
+                    ]);
+                    
+                    return back()->withErrors([
+                        'images' => "Failed to upload image '" . $img->getClientOriginalName() . "': " . $e->getMessage()
+                    ])->withInput();
+                }
             }
         }
 
@@ -111,9 +167,65 @@ public function index(): View
 
         // Handle image uploads
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $img) {
-                $path = $img->store('products', 'public');
-                $product->images()->create(['url' => "/storage/$path"]);
+            foreach ($request->file('images') as $index => $img) {
+                try {
+                    // Check if file is valid
+                    if (!$img->isValid()) {
+                        throw new \Exception("Invalid image file at index $index");
+                    }
+
+                    // Check file size (additional check beyond validation)
+                    if ($img->getSize() > 8388608) { // 8MB in bytes
+                        throw new \Exception("Image file at index $index is too large (max 8MB)");
+                    }
+
+                    // Check if storage directory exists and is writable
+                    $storagePath = storage_path('app/public/products');
+                    if (!is_dir($storagePath)) {
+                        if (!mkdir($storagePath, 0755, true)) {
+                            throw new \Exception("Failed to create products storage directory");
+                        }
+                    }
+
+                    if (!is_writable($storagePath)) {
+                        throw new \Exception("Products storage directory is not writable. Check permissions.");
+                    }
+
+                    // Store the image
+                    $path = $img->store('products', 'public');
+                    
+                    if (!$path) {
+                        throw new \Exception("Failed to store image file at index $index");
+                    }
+
+                    // Verify the file was actually stored
+                    if (!Storage::disk('public')->exists($path)) {
+                        throw new \Exception("Image file was not properly saved at index $index");
+                    }
+
+                    // Create database record
+                    $imageRecord = $product->images()->create(['url' => "/storage/$path"]);
+                    
+                    if (!$imageRecord) {
+                        // Clean up the stored file if database insertion fails
+                        Storage::disk('public')->delete($path);
+                        throw new \Exception("Failed to save image record to database at index $index");
+                    }
+
+                } catch (\Exception $e) {
+                    \Log::error("Product image upload error: " . $e->getMessage(), [
+                        'product_id' => $product->id,
+                        'file_index' => $index,
+                        'file_name' => $img->getClientOriginalName(),
+                        'file_size' => $img->getSize(),
+                        'storage_path' => storage_path('app/public/products'),
+                        'permissions' => is_writable(storage_path('app/public/products')) ? 'writable' : 'not writable'
+                    ]);
+                    
+                    return back()->withErrors([
+                        'images' => "Failed to upload image '" . $img->getClientOriginalName() . "': " . $e->getMessage()
+                    ])->withInput();
+                }
             }
         }
 

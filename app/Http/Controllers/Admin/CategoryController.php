@@ -1,16 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Image;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $categories = Category::with('children.images', 'products', 'images')
             ->whereNull('parent_id')
@@ -19,13 +25,17 @@ class CategoryController extends Controller
         return view('admin.categories.index', compact('categories'));
     }
 
-    public function create()
+    public function create(): View
     {
         $parentCategories = Category::whereNull('parent_id')->get();
-        return view('admin.categories.create', compact('parentCategories'));
+
+        return view(
+            'admin.categories.create', 
+            compact('parentCategories')
+        );
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
@@ -37,26 +47,86 @@ class CategoryController extends Controller
 
         // Handle image uploads
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $img) {
-                $path = $img->store('categories', 'public');
-                $category->images()->create(['url' => "/storage/$path"]);
+            foreach ($request->file('images') as $index => $img) {
+                try {
+                    // Check if file is valid
+                    if (!$img->isValid()) {
+                        throw new \Exception("Invalid image file at index $index");
+                    }
+
+                    // Check file size (additional check beyond validation)
+                    if ($img->getSize() > 8388608) { // 8MB in bytes
+                        throw new \Exception("Image file at index $index is too large (max 8MB)");
+                    }
+
+                    // Check if storage directory exists and is writable
+                    $storagePath = storage_path('app/public/categories');
+                    if (!is_dir($storagePath)) {
+                        if (!mkdir($storagePath, 0755, true)) {
+                            throw new \Exception("Failed to create categories storage directory");
+                        }
+                    }
+
+                    if (!is_writable($storagePath)) {
+                        throw new \Exception("Categories storage directory is not writable. Check permissions.");
+                    }
+
+                    // Store the image
+                    $path = $img->store('categories', 'public');
+                    
+                    if (!$path) {
+                        throw new \Exception("Failed to store image file at index $index");
+                    }
+
+                    // Verify the file was actually stored
+                    if (!Storage::disk('public')->exists($path)) {
+                        throw new \Exception("Image file was not properly saved at index $index");
+                    }
+
+                    // Create database record
+                    $imageRecord = $category->images()->create(['url' => "/storage/$path"]);
+                    
+                    if (!$imageRecord) {
+                        // Clean up the stored file if database insertion fails
+                        Storage::disk('public')->delete($path);
+                        throw new \Exception("Failed to save image record to database at index $index");
+                    }
+
+                } catch (\Exception $e) {
+                    Log::error("Category image upload error: " . $e->getMessage(), [
+                        'category_id' => $category->id,
+                        'file_index' => $index,
+                        'file_name' => $img->getClientOriginalName(),
+                        'file_size' => $img->getSize(),
+                        'storage_path' => storage_path('app/public/categories'),
+                        'permissions' => is_writable(storage_path('app/public/categories')) ? 'writable' : 'not writable'
+                    ]);
+                    
+                    return back()->withErrors([
+                        'images' => "Failed to upload image '" . $img->getClientOriginalName() . "': " . $e->getMessage()
+                    ])->withInput();
+                }
             }
         }
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category created successfully!');
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('success', __('Category created successfully!'));
     }
 
-    public function edit(Category $category)
+    public function edit(Category $category): View
     {
         $parentCategories = Category::whereNull('parent_id')
             ->where('id', '!=', $category->id)
             ->get();
         
-        return view('admin.categories.edit', compact('category', 'parentCategories'));
+        return view(
+            'admin.categories.edit', 
+            compact('category', 'parentCategories')
+        );
     }
 
-    public function update(Request $request, Category $category)
+    public function update(Request $request, Category $category): RedirectResponse
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
@@ -73,9 +143,65 @@ class CategoryController extends Controller
 
         // Handle image uploads
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $img) {
-                $path = $img->store('categories', 'public');
-                $category->images()->create(['url' => "/storage/$path"]);
+            foreach ($request->file('images') as $index => $img) {
+                try {
+                    // Check if file is valid
+                    if (!$img->isValid()) {
+                        throw new \Exception("Invalid image file at index $index");
+                    }
+
+                    // Check file size (additional check beyond validation)
+                    if ($img->getSize() > 8388608) { // 8MB in bytes
+                        throw new \Exception("Image file at index $index is too large (max 8MB)");
+                    }
+
+                    // Check if storage directory exists and is writable
+                    $storagePath = storage_path('app/public/categories');
+                    if (!is_dir($storagePath)) {
+                        if (!mkdir($storagePath, 0755, true)) {
+                            throw new \Exception("Failed to create categories storage directory");
+                        }
+                    }
+
+                    if (!is_writable($storagePath)) {
+                        throw new \Exception("Categories storage directory is not writable. Check permissions.");
+                    }
+
+                    // Store the image
+                    $path = $img->store('categories', 'public');
+                    
+                    if (!$path) {
+                        throw new \Exception("Failed to store image file at index $index");
+                    }
+
+                    // Verify the file was actually stored
+                    if (!Storage::disk('public')->exists($path)) {
+                        throw new \Exception("Image file was not properly saved at index $index");
+                    }
+
+                    // Create database record
+                    $imageRecord = $category->images()->create(['url' => "/storage/$path"]);
+                    
+                    if (!$imageRecord) {
+                        // Clean up the stored file if database insertion fails
+                        Storage::disk('public')->delete($path);
+                        throw new \Exception("Failed to save image record to database at index $index");
+                    }
+
+                } catch (\Exception $e) {
+                    Log::error("Category image upload error: " . $e->getMessage(), [
+                        'category_id' => $category->id,
+                        'file_index' => $index,
+                        'file_name' => $img->getClientOriginalName(),
+                        'file_size' => $img->getSize(),
+                        'storage_path' => storage_path('app/public/categories'),
+                        'permissions' => is_writable(storage_path('app/public/categories')) ? 'writable' : 'not writable'
+                    ]);
+                    
+                    return back()->withErrors([
+                        'images' => "Failed to upload image '" . $img->getClientOriginalName() . "': " . $e->getMessage()
+                    ])->withInput();
+                }
             }
         }
 
@@ -83,16 +209,20 @@ class CategoryController extends Controller
             ->with('success', 'Category updated successfully!');
     }
 
-    public function destroy(Category $category)
+    public function destroy(Category $category): RedirectResponse
     {
         // Check if category has products
         if ($category->products()->count() > 0) {
-            return back()->withErrors(['error' => 'Cannot delete category that has products.']);
+            return back()->withErrors([
+                'error' => 'Cannot delete category that has products.'
+            ]);
         }
 
         // Check if category has children
         if ($category->children()->count() > 0) {
-            return back()->withErrors(['error' => 'Cannot delete category that has subcategories.']);
+            return back()->withErrors([
+                'error' => 'Cannot delete category that has subcategories.'
+            ]);
         }
 
         // Delete category images from storage
@@ -103,15 +233,21 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category deleted successfully!');
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('success', __('Category deleted successfully!'));
     }
 
-    public function deleteImage(Image $image)
+    public function deleteImage(Image $image): JsonResponse
     {
         // Verify the image belongs to a category
         if ($image->imageable_type !== Category::class) {
-            return response()->json(['error' => 'Image not found'], 404);
+            return response()->json(
+                [
+                    'error' => 'Image not found'
+                ], 
+                404
+            );
         }
 
         // Delete from storage
@@ -121,6 +257,8 @@ class CategoryController extends Controller
         // Delete from database
         $image->delete();
 
-        return response()->json(['success' => 'Image deleted successfully']);
+        return response()->json([
+            'success' => 'Image deleted successfully'
+        ]);
     }
 }
