@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewMessageNotification;
 use App\Models\Message;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class MessageController extends Controller
@@ -141,13 +143,26 @@ class MessageController extends Controller
             return back()->with('error', __('You cannot message yourself.'));
         }
 
-        Message::create([
+        $message = Message::create([
             'sender_id' => Auth::id(),
             'receiver_id' => $request->receiver_id,
             'product_id' => $request->product_id,
             'subject' => $request->subject,
             'message' => $request->message,
         ]);
+
+        // Send email notification to the receiver
+        try {
+            $receiver = User::findOrFail($request->receiver_id);
+            Mail::to($receiver->email)->send(new NewMessageNotification($message->load(['sender', 'receiver', 'product'])));
+        } catch (\Exception $e) {
+            // Log email sending failure but don't prevent message from being sent
+            \Log::error('Failed to send new message email notification', [
+                'message_id' => $message->id,
+                'receiver_email' => $receiver->email ?? 'unknown',
+                'error' => $e->getMessage()
+            ]);
+        }
 
         return redirect()
             ->route(
@@ -180,13 +195,25 @@ class MessageController extends Controller
             $subject = 'Re: ' . $subject;
         }
 
-        Message::create([
+        $message = Message::create([
             'sender_id' => Auth::id(),
             'receiver_id' => $user->id,
             'product_id' => $latestMessage?->product_id,
             'subject' => $subject,
             'message' => $request->message,
         ]);
+
+        // Send email notification to the receiver
+        try {
+            Mail::to($user->email)->send(new NewMessageNotification($message->load(['sender', 'receiver', 'product'])));
+        } catch (\Exception $e) {
+            // Log email sending failure but don't prevent message from being sent
+            \Log::error('Failed to send reply message email notification', [
+                'message_id' => $message->id,
+                'receiver_email' => $user->email,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         return back()->with('success', __('Reply sent successfully!'));
     }
