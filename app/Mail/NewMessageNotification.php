@@ -14,14 +14,14 @@ class NewMessageNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public Message $message;
+    public Message $userMessage;
 
     /**
      * Create a new message instance.
      */
     public function __construct(Message $message)
     {
-        $this->message = $message;
+        $this->userMessage = $message;
     }
 
     /**
@@ -30,7 +30,7 @@ class NewMessageNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('New Message: :subject', ['subject' => $this->message->subject]),
+            subject: __('New Message: :subject', ['subject' => $this->userMessage->subject]),
         );
     }
 
@@ -42,10 +42,10 @@ class NewMessageNotification extends Mailable
         return new Content(
             view: 'emails.new-message',
             with: [
-                'message' => $this->message,
-                'sender' => $this->message->sender,
-                'receiver' => $this->message->receiver,
-                'product' => $this->message->product,
+                'userMessage' => $this->userMessage,
+                'sender' => $this->userMessage->sender,
+                'receiver' => $this->userMessage->receiver,
+                'product' => $this->userMessage->product,
             ],
         );
     }

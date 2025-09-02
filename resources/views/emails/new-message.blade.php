@@ -57,7 +57,7 @@
     </div>
 
     <div class="message-content">
-        <h2>{{ __('Subject: :subject', ['subject' => $message->subject]) }}</h2>
+        <h2>{{ __('Subject: :subject', ['subject' => $userMessage->subject]) }}</h2>
         
         @if($product)
             <div class="product-info">
@@ -68,7 +68,7 @@
         @endif
 
         <h3>{{ __('Message:') }}</h3>
-        <p style="white-space: pre-wrap;">{{ $message->message }}</p>
+        <p style="white-space: pre-wrap;">{{ $userMessage->message }}</p>
 
         <p><strong>{{ __('From:') }}</strong> {{ $sender->name }}</p>
         @if($sender->email)
@@ -81,7 +81,7 @@
             <p><strong>{{ __('City:') }}</strong> {{ $sender->city }}</p>
         @endif
 
-        <p><strong>{{ __('Sent:') }}</strong> {{ $message->created_at->format('F j, Y \a\t g:i A') }}</p>
+        <p><strong>{{ __('Sent:') }}</strong> {{ $userMessage->created_at->format('F j, Y \a\t g:i A') }}</p>
     </div>
 
     <div style="text-align: center;">
