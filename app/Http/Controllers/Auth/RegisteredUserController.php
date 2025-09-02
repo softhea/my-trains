@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Anhskohbo\NoCaptcha\Facades\NoCaptcha;
+use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
@@ -59,7 +60,7 @@ class RegisteredUserController extends Controller
             event(new Registered($user));
         } catch (\Exception $e) {
             // Log the email error but don't stop registration
-            \Log::error('Email verification sending failed during registration', [
+            Log::error('Email verification sending failed during registration', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'error' => $e->getMessage(),
