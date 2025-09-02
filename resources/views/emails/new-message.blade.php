@@ -71,15 +71,15 @@
         <p style="white-space: pre-wrap;">{{ $userMessage->message }}</p>
 
         <p><strong>{{ __('From:') }}</strong> {{ $sender->name }}</p>
-        @if($sender->email)
+        <!-- @if($sender->email)
             <p><strong>{{ __('Email:') }}</strong> {{ $sender->email }}</p>
-        @endif
-        @if($sender->phone)
+        @endif -->
+        <!-- @if($sender->phone)
             <p><strong>{{ __('Phone:') }}</strong> {{ $sender->phone }}</p>
         @endif
         @if($sender->city)
             <p><strong>{{ __('City:') }}</strong> {{ $sender->city }}</p>
-        @endif
+        @endif -->
 
         <p><strong>{{ __('Sent:') }}</strong> {{ $userMessage->created_at->format('F j, Y \a\t g:i A') }}</p>
     </div>
