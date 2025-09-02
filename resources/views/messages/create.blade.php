@@ -31,9 +31,7 @@
                     {{ strtoupper(substr($receiver->name, 0, 1)) }}
                   </div>
                   <div>
-                    <strong>{{ $receiver->name }}</strong>
-                    <br>
-                    <small class="text-muted">{{ $receiver->email }}</small>
+                    <strong>{{ $receiver->name }}</strong>  
                   </div>
                 </div>
               @else
@@ -41,7 +39,7 @@
                   <option value="">{{ __('Select a user...') }}</option>
                   @foreach($users as $user)
                     <option value="{{ $user->id }}" {{ old('receiver_id') == $user->id ? 'selected' : '' }}>
-                      {{ $user->name }} ({{ $user->email }})
+                      {{ $user->name }}
                     </option>
                   @endforeach
                 </select>

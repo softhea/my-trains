@@ -17,7 +17,6 @@
               </div>
               <div>
                 <h4 class="mb-0">{{ $user->name }}</h4>
-                <small class="text-muted">{{ $user->email }}</small>
               </div>
             </div>
             <a href="{{ route('messages.index') }}" class="btn btn-outline-secondary">
