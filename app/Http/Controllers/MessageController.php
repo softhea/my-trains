@@ -57,10 +57,31 @@ class MessageController extends Controller
                 ->with('error', __('You cannot message yourself.'));
         }
 
-        $messages = Message::betweenUsers($currentUser->id, $user->id)
-            ->with(['sender', 'receiver', 'product'])
+        // Debug: Log the query and parameters
+        $query = Message::betweenUsers($currentUser->id, $user->id);
+        \Log::info('Conversation query debug', [
+            'current_user_id' => $currentUser->id,
+            'other_user_id' => $user->id,
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings()
+        ]);
+        
+        $messages = $query->with(['sender', 'receiver', 'product'])
             ->orderBy('created_at', 'asc')
             ->get();
+            
+        // Debug: Log the results
+        \Log::info('Conversation messages found', [
+            'count' => $messages->count(),
+            'message_details' => $messages->map(function($msg) {
+                return [
+                    'id' => $msg->id,
+                    'sender_id' => $msg->sender_id,
+                    'receiver_id' => $msg->receiver_id,
+                    'subject' => $msg->subject
+                ];
+            })->toArray()
+        ]);
 
         // Mark messages as read
         Message::where('sender_id', $user->id)
@@ -154,13 +175,31 @@ class MessageController extends Controller
         // Send email notification to the receiver
         try {
             $receiver = User::findOrFail($request->receiver_id);
+            
+            // Log attempt to send email
+            \Log::info('Attempting to send new message email notification', [
+                'message_id' => $message->id,
+                'receiver_email' => $receiver->email,
+                'sender_email' => Auth::user()->email,
+                'subject' => $message->subject
+            ]);
+            
             Mail::to($receiver->email)->send(new NewMessageNotification($message->load(['sender', 'receiver', 'product'])));
+            
+            // Log successful sending
+            \Log::info('Successfully sent new message email notification', [
+                'message_id' => $message->id,
+                'receiver_email' => $receiver->email
+            ]);
+            
         } catch (\Exception $e) {
             // Log email sending failure but don't prevent message from being sent
             \Log::error('Failed to send new message email notification', [
                 'message_id' => $message->id,
                 'receiver_email' => $receiver->email ?? 'unknown',
-                'error' => $e->getMessage()
+                'sender_email' => Auth::user()->email ?? 'unknown',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
         }
 
@@ -205,13 +244,30 @@ class MessageController extends Controller
 
         // Send email notification to the receiver
         try {
+            // Log attempt to send email
+            \Log::info('Attempting to send reply message email notification', [
+                'message_id' => $message->id,
+                'receiver_email' => $user->email,
+                'sender_email' => Auth::user()->email,
+                'subject' => $message->subject
+            ]);
+            
             Mail::to($user->email)->send(new NewMessageNotification($message->load(['sender', 'receiver', 'product'])));
+            
+            // Log successful sending
+            \Log::info('Successfully sent reply message email notification', [
+                'message_id' => $message->id,
+                'receiver_email' => $user->email
+            ]);
+            
         } catch (\Exception $e) {
             // Log email sending failure but don't prevent message from being sent
             \Log::error('Failed to send reply message email notification', [
                 'message_id' => $message->id,
                 'receiver_email' => $user->email,
-                'error' => $e->getMessage()
+                'sender_email' => Auth::user()->email ?? 'unknown',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
         }
 

@@ -76,8 +76,14 @@ class Message extends Model
     public function scopeBetweenUsers($query, $user1Id, $user2Id)
     {
         return $query->where(function ($q) use ($user1Id, $user2Id) {
-            $q->where(['sender_id' => $user1Id, 'receiver_id' => $user2Id])
-              ->orWhere(['sender_id' => $user2Id, 'receiver_id' => $user1Id]);
+            $q->where(function ($subQ) use ($user1Id, $user2Id) {
+                $subQ->where('sender_id', $user1Id)
+                     ->where('receiver_id', $user2Id);
+            })
+            ->orWhere(function ($subQ) use ($user1Id, $user2Id) {
+                $subQ->where('sender_id', $user2Id)
+                     ->where('receiver_id', $user1Id);
+            });
         });
     }
 }
