@@ -52,13 +52,13 @@ class TestEmailSending extends Command
             }
             
             // Create a test message
-            $message = new Message([
-                'sender_id' => $sender->id,
-                'receiver_id' => $receiver->id ?? 999,
-                'subject' => 'Test Message - Email Notification',
-                'message' => 'This is a test message to verify email notifications are working correctly.',
-                'created_at' => now(),
-            ]);
+            $message = new Message();
+            $message->sender_id = $sender->id;
+            $message->receiver_id = $receiver->id ?? 999;
+            $message->subject = 'Test Message - Email Notification';
+            $message->message = 'This is a test message to verify email notifications are working correctly.';
+            $message->created_at = now();
+            $message->updated_at = now();
             
             // Set relationships manually for testing
             $message->setRelation('sender', $sender);
