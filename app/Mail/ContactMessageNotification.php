@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ContactMessageNotification extends Mailable implements ShouldQueue
+class ContactMessageNotification extends Mailable //implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -31,10 +31,7 @@ class ContactMessageNotification extends Mailable implements ShouldQueue
         return new Envelope(
             subject: __('New Contact Message: :subject', ['subject' => $this->contactData['subject']]),
             replyTo: [
-                [
-                    'address' => $this->contactData['email'],
-                    'name' => $this->contactData['name'],
-                ]
+                $this->contactData['email']
             ],
         );
     }

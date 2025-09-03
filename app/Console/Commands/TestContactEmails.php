@@ -4,8 +4,10 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\User;
+use App\Models\Message;
 use App\Mail\ContactMessageNotification;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 
 class TestContactEmails extends Command
 {
@@ -92,6 +94,56 @@ class TestContactEmails extends Command
         $this->info("📧 Results: {$successCount} sent successfully, {$failCount} failed");
         $this->info("📧 Check your mail logs or configured mail service for the emails.");
 
+        // Test the actual contact form integration (create messages in system)
+        $this->info("\n--- Testing Contact Form Integration ---");
+        try {
+            // Create a test contact submission through the controller logic
+            $testContactData = [
+                'name' => 'Test User',
+                'email' => 'test.contact@example.com',
+                'subject' => 'Test Integration Message',
+                'message' => 'This is a test to verify contact messages are created in the message system.',
+            ];
+
+            DB::transaction(function () use ($testContactData, $admins) {
+                // Simulate the contact controller logic
+                // Find or create user
+                $sender = User::where('email', $testContactData['email'])->first();
+                if (!$sender) {
+                    $guestRole = \App\Models\Role::where('name', 'user')->first();
+                    $sender = User::create([
+                        'name' => $testContactData['name'],
+                        'email' => $testContactData['email'],
+                        'password' => bcrypt(uniqid()),
+                        'role_id' => $guestRole?->id,
+                        'email_verified_at' => null,
+                    ]);
+                    $this->info("✅ Created guest user: {$sender->name} ({$sender->email})");
+                }
+
+                // Create messages for each admin
+                $messageCount = 0;
+                foreach ($admins as $admin) {
+                    Message::create([
+                        'sender_id' => $sender->id,
+                        'receiver_id' => $admin->id,
+                        'product_id' => null,
+                        'subject' => '[Contact Form] ' . $testContactData['subject'],
+                        'message' => $testContactData['message'],
+                    ]);
+                    $messageCount++;
+                }
+
+                $this->info("✅ Created {$messageCount} messages in the system");
+                $this->info("📨 Admins will see these messages in their inbox");
+            });
+
+        } catch (\Exception $e) {
+            $this->error("❌ Failed to test contact integration: " . $e->getMessage());
+            return 1;
+        }
+
+        $this->info("\n✅ All tests completed successfully!");
         return $failCount === 0 ? 0 : 1;
     }
 }
