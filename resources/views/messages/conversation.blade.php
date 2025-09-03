@@ -79,6 +79,19 @@
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
             </div>
+            
+            <!-- CAPTCHA -->
+            <div class="mb-3">
+              <label for="captcha" class="form-label">{{ __('Security Check') }}</label>
+              <div class="mt-2">
+                {!! NoCaptcha::renderJs() !!}
+                {!! NoCaptcha::display() !!}
+                @error('g-recaptcha-response')
+                  <div class="text-danger mt-2">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+            
             <div class="d-flex justify-content-end">
               <button type="submit" class="btn btn-primary">
                 <i class="fas fa-reply me-1"></i>{{ __('Send Reply') }}

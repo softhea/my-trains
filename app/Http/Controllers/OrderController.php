@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewOrderNotification;
 
 class OrderController extends Controller
 {
@@ -30,7 +32,8 @@ class OrderController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($request, $product) {
+            $order = null;
+            DB::transaction(function () use ($request, $product, &$order) {
                 // Create the order
                 $totalPrice = $product->price * $request->quantity;
                 
@@ -44,8 +47,16 @@ class OrderController extends Controller
                     'status' => 'pending',
                 ]);
 
+                // Load relationships for email
+                $order->load(['user', 'seller', 'product']);
+
                 // Stock is NOT reduced here - it will be reduced when seller accepts (status -> processing)
             });
+
+            // Send email notification to seller
+            if ($order && $order->seller && $order->seller->email) {
+                Mail::to($order->seller->email)->send(new NewOrderNotification($order));
+            }
 
             return back()->with('success', __('Order placed successfully! We\'ll contact you soon.'));
         } catch (\Exception $e) {

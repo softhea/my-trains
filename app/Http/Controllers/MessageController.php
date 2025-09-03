@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
+use Anhskohbo\NoCaptcha\Facades\NoCaptcha;
 
 class MessageController extends Controller
 {
@@ -158,6 +159,11 @@ class MessageController extends Controller
             'product_id' => 'nullable|exists:products,id',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:2000',
+            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+                if (!NoCaptcha::verifyResponse($value)) {
+                    $fail(__('The reCAPTCHA verification failed. Please try again.'));
+                }
+            }],
         ]);
 
         if ($request->receiver_id == Auth::id()) {
@@ -218,6 +224,11 @@ class MessageController extends Controller
     {
         $request->validate([
             'message' => 'required|string|max:2000',
+            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+                if (!NoCaptcha::verifyResponse($value)) {
+                    $fail(__('The reCAPTCHA verification failed. Please try again.'));
+                }
+            }],
         ]);
 
         if ($user->id === Auth::id()) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
@@ -31,6 +32,10 @@ Route::middleware('setlocale')->group(function () {
     Route::post('/order', [OrderController::class, 'store'])
         ->name('order.store')
         ->middleware(['auth', 'verified']);
+
+    // Contact routes
+    Route::get('/contact', [ContactController::class, 'create'])->name('contact.create');
+    Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
     Route::middleware(['auth'])->group(function () {
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

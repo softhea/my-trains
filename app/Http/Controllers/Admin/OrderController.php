@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderAcceptedNotification;
 
 class OrderController extends Controller
 {
@@ -98,6 +100,14 @@ class OrderController extends Controller
         }
 
         $order->update(['status' => $newStatus]);
+
+        // Send email notification to buyer when order is accepted (status changes to processing)
+        if ($oldStatus === 'pending' && $newStatus === 'processing') {
+            $order->load(['user', 'seller', 'product']);
+            if ($order->user && $order->user->email) {
+                Mail::to($order->user->email)->send(new OrderAcceptedNotification($order));
+            }
+        }
 
         return back()->with('success', __('Order status updated successfully.'));
     }

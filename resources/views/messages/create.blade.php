@@ -101,6 +101,18 @@
               <div class="form-text">{{ __('Maximum 2000 characters') }}</div>
             </div>
 
+            <!-- CAPTCHA -->
+            <div class="mb-3">
+              <label for="captcha" class="form-label">{{ __('Security Check') }}</label>
+              <div class="mt-2">
+                {!! NoCaptcha::renderJs() !!}
+                {!! NoCaptcha::display() !!}
+                @error('g-recaptcha-response')
+                  <div class="text-danger mt-2">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+
             <!-- Actions -->
             <div class="d-flex justify-content-between">
               <a href="{{ route('messages.index') }}" class="btn btn-secondary">

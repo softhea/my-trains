@@ -27,6 +27,12 @@
             {{ __('Products') }}
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('contact.create') ? 'active' : '' }}" href="{{ route('contact.create') }}">
+            <i class="fas fa-envelope me-1"></i>
+            {{ __('Contact') }}
+          </a>
+        </li>
 
         <!-- Language Switcher (visible for all users) -->
         <li class="nav-item dropdown">
