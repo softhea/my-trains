@@ -146,7 +146,7 @@
                 
                 @if($orders->count() > 0)
                     <div class="card-footer">
-                        {{ $orders->links() }}
+                        {{ $orders->links('vendor.pagination.custom-bootstrap-5') }}
                     </div>
                 @endif
             </div>

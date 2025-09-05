@@ -37,6 +37,23 @@ Route::middleware('setlocale')->group(function () {
     Route::get('/contact', [ContactController::class, 'create'])->name('contact.create');
     Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
+    // Legal pages
+    Route::get('/privacy-policy', function () {
+        return view('legal.privacy-policy');
+    })->name('privacy-policy');
+    
+    Route::get('/cookie-policy', function () {
+        return view('legal.cookie-policy');
+    })->name('cookie-policy');
+    
+    Route::get('/terms-and-conditions', function () {
+        return view('legal.terms-and-conditions');
+    })->name('terms-and-conditions');
+    
+    Route::get('/legal-notice', function () {
+        return view('legal.legal-notice');
+    })->name('legal-notice');
+
     Route::middleware(['auth'])->group(function () {
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');

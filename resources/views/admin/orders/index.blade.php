@@ -136,7 +136,7 @@
     </div>
 
     <div class="d-flex justify-content-center mt-4">
-      {{ $orders->links() }}
+      {{ $orders->links('vendor.pagination.custom-bootstrap-5') }}
     </div>
   @else
     <div class="text-center py-5">

@@ -206,7 +206,7 @@
 
         <!-- Pagination -->
         <div class="d-flex justify-content-center">
-          {{ $products->links() }}
+          {{ $products->links('vendor.pagination.custom-bootstrap-5') }}
         </div>
       @else
         <!-- No Results -->
