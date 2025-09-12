@@ -239,7 +239,7 @@
 
     <!-- Pagination -->
     <div class="d-flex justify-content-center mt-4">
-      {{ $messages->appends(request()->query())->links() }}
+      {{ $messages->appends(request()->query())->links('vendor.pagination.custom-bootstrap-5') }}
     </div>
   @else
     <div class="text-center py-5">
