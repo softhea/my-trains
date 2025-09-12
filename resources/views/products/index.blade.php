@@ -194,9 +194,18 @@
                   </div>
                   
                   <div class="mt-3">
-                    <a href="{{ route('products.show', $product) }}" class="btn btn-primary w-100">
-                      <i class="fas fa-eye me-1"></i>{{ __('View Details') }}
-                    </a>
+                    <div class="d-flex gap-2">
+                      <a href="{{ route('products.show', $product) }}" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-eye me-1"></i>{{ __('View Details') }}
+                      </a>
+                      @auth
+                        @if($product->user_id === Auth::id())
+                          <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                        @endif
+                      @endauth
+                    </div>
                   </div>
                 </div>
               </div>

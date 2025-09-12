@@ -83,7 +83,10 @@ class ContactController extends Controller
                 // Send email notifications to all admins
                 foreach ($admins as $admin) {
                     if ($admin->email) {
-                        Mail::to($admin->email)->send(new ContactMessageNotification($contactData));
+                        Mail::to($admin->email)
+                            ->send(
+                                new ContactMessageNotification($contactData)
+                            );
                     }
                 }
 

@@ -190,7 +190,10 @@ class MessageController extends Controller
                 'subject' => $message->subject
             ]);
             
-            Mail::to($receiver->email)->send(new NewMessageNotification($message->load(['sender', 'receiver', 'product'])));
+            Mail::to($receiver->email)
+                ->send(
+                    new NewMessageNotification($message->load(['sender', 'receiver', 'product']))
+                );
             
             // Log successful sending
             \Log::info('Successfully sent new message email notification', [
