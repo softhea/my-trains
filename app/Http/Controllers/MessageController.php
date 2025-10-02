@@ -154,17 +154,23 @@ class MessageController extends Controller
                 );
         }
 
-        $request->validate([
+        $validationRules = [
             'receiver_id' => 'required|exists:users,id',
             'product_id' => 'nullable|exists:products,id',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:2000',
-            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+        ];
+
+        // Only require reCAPTCHA validation if not in local environment and user is not authenticated
+        if (!app()->environment('local') && !auth()->check()) {
+            $validationRules['g-recaptcha-response'] = ['required', function ($attribute, $value, $fail) {
                 if (!NoCaptcha::verifyResponse($value)) {
                     $fail(__('The reCAPTCHA verification failed. Please try again.'));
                 }
-            }],
-        ]);
+            }];
+        }
+
+        $request->validate($validationRules);
 
         if ($request->receiver_id == Auth::id()) {
             return back()->with('error', __('You cannot message yourself.'));
@@ -222,14 +228,20 @@ class MessageController extends Controller
      */
     public function reply(Request $request, User $user)
     {
-        $request->validate([
+        $validationRules = [
             'message' => 'required|string|max:2000',
-            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+        ];
+
+        // Only require reCAPTCHA validation if not in local environment and user is not authenticated
+        if (!app()->environment('local') && !auth()->check()) {
+            $validationRules['g-recaptcha-response'] = ['required', function ($attribute, $value, $fail) {
                 if (!NoCaptcha::verifyResponse($value)) {
                     $fail(__('The reCAPTCHA verification failed. Please try again.'));
                 }
-            }],
-        ]);
+            }];
+        }
+
+        $request->validate($validationRules);
 
         if ($user->id === Auth::id()) {
             return back()->with('error', __('You cannot message yourself.'));

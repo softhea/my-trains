@@ -113,11 +113,12 @@
               <div class="col-md-3">
                 <div class="mb-3">
                   <label for="category_id" class="form-label">{{ __('Category') }}</label>
-                  <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror" required>
+                  <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror" required style="font-family: monospace;">
                     <option value="">{{ __('Select a category') }}</option>
                     @foreach ($categories as $category)
                       <option value="{{ $category->id }}" 
-                              {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                              {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}
+                              @if($category->parent_id) style="color: #666;" @endif>
                         {{ $category->name }}
                       </option>
                     @endforeach
@@ -125,6 +126,9 @@
                   @error('category_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
+                  <div class="form-text">
+                    <small>{{ __('Categories with "→" are subcategories') }}</small>
+                  </div>
                 </div>
               </div>
             </div>
@@ -181,7 +185,10 @@
               @error('images.*')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
-              <div class="form-text">{{ __('You can upload additional images. Maximum size: 8MB per image.') }}</div>
+              <div class="form-text">
+                {{ __('Maximum file size:') }} {{ number_format($maxUploadSize / 1024 / 1024, 0) }}MB {{ __('per image') }}
+              </div>
+              <div id="fileSizeError" class="text-danger mt-2" style="display: none;"></div>
             </div>
 
             <!-- YouTube Videos -->
@@ -462,6 +469,84 @@ function closeModal() {
       instance.hide();
     }
   }
+}
+
+// File size validation
+const form = document.querySelector('form');
+const fileInput = document.getElementById('images');
+const errorDiv = document.getElementById('fileSizeError');
+const maxFileSize = {{ $maxUploadSize }}; // bytes
+const maxFileSizeMB = (maxFileSize / 1024 / 1024).toFixed(0);
+
+// Validate files on selection
+if (fileInput) {
+  fileInput.addEventListener('change', function() {
+    validateFiles();
+  });
+
+  // Validate before form submission
+  form.addEventListener('submit', function(e) {
+    if (!validateFiles()) {
+      e.preventDefault();
+      return false;
+    }
+  });
+}
+
+function validateFiles() {
+  const submitBtn = form.querySelector('button[type="submit"]');
+  
+  errorDiv.style.display = 'none';
+  errorDiv.innerHTML = '';
+  
+  if (!fileInput.files || fileInput.files.length === 0) {
+    fileInput.classList.remove('is-invalid');
+    if (submitBtn) submitBtn.disabled = false;
+    return true;
+  }
+
+  const files = Array.from(fileInput.files);
+  const oversizedFiles = [];
+  let totalSize = 0;
+
+  files.forEach(file => {
+    totalSize += file.size;
+    if (file.size > maxFileSize) {
+      oversizedFiles.push({
+        name: file.name,
+        size: (file.size / 1024 / 1024).toFixed(2)
+      });
+    }
+  });
+
+  // Check individual file sizes
+  if (oversizedFiles.length > 0) {
+    let errorMsg = '{{ __("The following files exceed the maximum upload size of") }} ' + maxFileSizeMB + 'MB:<br><ul>';
+    oversizedFiles.forEach(file => {
+      errorMsg += '<li><strong>' + file.name + '</strong> (' + file.size + 'MB)</li>';
+    });
+    errorMsg += '</ul>{{ __("Please select smaller files or reduce the image quality/size.") }}';
+    
+    errorDiv.innerHTML = errorMsg;
+    errorDiv.style.display = 'block';
+    fileInput.classList.add('is-invalid');
+    if (submitBtn) submitBtn.disabled = true;
+    return false;
+  }
+
+  // Check total upload size (should not exceed post_max_size)
+  if (totalSize > maxFileSize) {
+    const totalSizeMB = (totalSize / 1024 / 1024).toFixed(2);
+    errorDiv.innerHTML = '{{ __("Total size of all files") }} (' + totalSizeMB + 'MB) {{ __("exceeds the server limit of") }} ' + maxFileSizeMB + 'MB.<br>{{ __("Please upload fewer images or reduce their size.") }}';
+    errorDiv.style.display = 'block';
+    fileInput.classList.add('is-invalid');
+    if (submitBtn) submitBtn.disabled = true;
+    return false;
+  }
+
+  fileInput.classList.remove('is-invalid');
+  if (submitBtn) submitBtn.disabled = false;
+  return true;
 }
 </script>
 @endif

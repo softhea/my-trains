@@ -115,6 +115,7 @@
             </div>
 
             <!-- CAPTCHA -->
+            @if(!app()->environment('local') && !auth()->check())
             <div class="mb-4">
               <label for="captcha" class="form-label">
                 <i class="fas fa-shield-alt me-1"></i>{{ __('Security Check') }} <span class="text-danger">*</span>
@@ -127,6 +128,7 @@
                 @enderror
               </div>
             </div>
+            @endif
 
             <div class="d-flex justify-content-between align-items-center">
               <a href="{{ route('home') }}" class="btn btn-outline-secondary">
