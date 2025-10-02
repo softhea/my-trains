@@ -61,24 +61,7 @@
                       {{ __('Manage Users') }}
                     </a>
                   </li>
-                  <li><hr class="dropdown-divider"></li>
                 @endif
-                
-                @if (Auth::user()->hasPermission('products.view'))
-                  <li>
-                    <a class="dropdown-item" href="{{ route('admin.products.index') }}">
-                      <i class="fas fa-box me-2"></i>
-                      {{ __('Manage Products') }}
-                    </a>
-                  </li>
-                @endif
-                
-                <li>
-                  <a class="dropdown-item" href="{{ route('admin.messages.index') }}">
-                    <i class="fas fa-envelope me-2"></i>
-                    {{ __('Manage Messages') }}
-                  </a>
-                </li>
                 
                 @if (Auth::user()->hasPermission('categories.view'))
                   <li><hr class="dropdown-divider"></li>
@@ -89,7 +72,25 @@
                     </a>
                   </li>
                 @endif
-                
+
+                @if (Auth::user()->hasPermission('products.view'))
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{{ route('admin.products.index') }}">
+                      <i class="fas fa-box me-2"></i>
+                      {{ __('Manage Products') }}
+                    </a>
+                  </li>
+                @endif                
+
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" href="{{ route('admin.messages.index') }}">
+                    <i class="fas fa-envelope me-2"></i>
+                    {{ __('Manage Messages') }}
+                  </a>
+                </li>
+
                 @if (Auth::user()->hasPermission('orders.view'))
                   <li><hr class="dropdown-divider"></li>
                   <li>
@@ -174,36 +175,44 @@
               </li>
               <li><hr class="dropdown-divider"></li>
               <li>
-                <a class="dropdown-item" href="{{ route('orders.index') }}">
-                  <i class="fas fa-shopping-bag me-2"></i>
-                   {{ __('My Orders') }}
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="{{ route('my.products') }}">
-                  <i class="fas fa-box-open me-2"></i>
-                  {{ __('My Products') }}
-                </a>
-              </li>
-              <li>
                 <a class="dropdown-item" href="{{ route('seller.orders.index') }}">
                   <i class="fas fa-clipboard-list me-2"></i>
                   {{ __('My Product Orders') }}
                 </a>
               </li>
               <li>
+                <a class="dropdown-item" href="{{ route('orders.index') }}">
+                  <i class="fas fa-shopping-bag me-2"></i>
+                   {{ __('My Orders') }}
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
                 <a class="dropdown-item" href="{{ route('messages.index') }}">
                   <i class="fas fa-envelope me-2"></i>
                   {{ __('My Messages') }}
                 </a>
+              </li>              
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="{{ route('admin.products.create') }}">
+                  <i class="fas fa-box-open me-2"></i>
+                  {{ __('Add Product') }}
+                </a>
+              </li>              
+              <li>
+                <a class="dropdown-item" href="{{ route('my.products') }}">
+                  <i class="fas fa-box-open me-2"></i>
+                  {{ __('My Products') }}
+                </a>
               </li>
+              <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item" href="{{ route('profile.edit') }}">
                   <i class="fas fa-user-edit me-2"></i>
                    {{ __('Edit Profile') }}
                 </a>
               </li>
-              <li><hr class="dropdown-divider"></li>
               <li>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                   @csrf

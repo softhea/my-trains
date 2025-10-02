@@ -84,6 +84,14 @@
       <p style="white-space: pre-wrap;">{{ $product->description }}</p>
       
       @auth
+        <!-- Edit Product Button (for product owner) -->
+        @if($product->user && $product->user->id === Auth::id())
+          <div class="mb-3">
+            <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-warning">
+              <i class="fas fa-edit me-1"></i>{{ __('Edit Product') }}
+            </a>
+          </div>
+        @endif
         <!-- Contact Seller Button -->
         @if($product->user && $product->user->id !== Auth::id())
           <div class="mb-3">
