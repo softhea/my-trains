@@ -23,19 +23,32 @@ class OrderController extends Controller
                 $q->where('user_id', auth()->id());
             });
             $view = 'seller.orders.index';
+            
+            // Calculate total for seller's product orders
+            $totalAmount = Order::whereHas('product', function ($q) {
+                $q->where('user_id', auth()->id());
+            })->sum('total_price');
         } else {
             // Admin routes: admins see all orders, non-admins see only their product orders
             if (!auth()->user()->isAdmin()) {
                 $query->whereHas('product', function ($q) {
                     $q->where('user_id', auth()->id());
                 });
+                
+                // Calculate total for non-admin user's product orders
+                $totalAmount = Order::whereHas('product', function ($q) {
+                    $q->where('user_id', auth()->id());
+                })->sum('total_price');
+            } else {
+                // Calculate total for all orders (admin view)
+                $totalAmount = Order::sum('total_price');
             }
             $view = 'admin.orders.index';
         }
 
         $orders = $query->latest()->paginate(20);
 
-        return view($view, compact('orders'));
+        return view($view, compact('orders', 'totalAmount'));
     }
 
     public function show(Order $order)

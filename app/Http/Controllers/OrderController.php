@@ -71,7 +71,10 @@ class OrderController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('orders.index', compact('orders'));
+        // Calculate total amount of all orders
+        $totalAmount = auth()->user()->orders()->sum('total_price');
+
+        return view('orders.index', compact('orders', 'totalAmount'));
     }
 
     public function show(Order $order)
