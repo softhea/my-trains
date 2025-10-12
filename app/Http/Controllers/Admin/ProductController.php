@@ -26,19 +26,104 @@ public function index(): View
 
     public function create(): View
     {
-        $categories = Category::all();
+        // Get all categories with parent relationship
+        $allCategories = Category::with('parent')->orderBy('name')->get();
+        
+        // Build hierarchical list
+        $categories = $this->buildCategoryHierarchy($allCategories);
 
-        return view('admin.products.create', compact('categories'));
+        // Get max upload size from server configuration
+        $maxUploadSize = $this->getMaxUploadSize();
+
+        return view('admin.products.create', compact('categories', 'maxUploadSize'));
+    }
+
+    /**
+     * Get the maximum upload file size from server configuration
+     * Returns size in bytes
+     */
+    private function getMaxUploadSize(): int
+    {
+        // Get upload_max_filesize and post_max_size from php.ini
+        $uploadMax = $this->parseSize(ini_get('upload_max_filesize'));
+        $postMax = $this->parseSize(ini_get('post_max_size'));
+        
+        // Return the smaller of the two
+        return min($uploadMax, $postMax);
+    }
+
+    /**
+     * Parse size string (like "8M", "2G") to bytes
+     */
+    private function parseSize(string $size): int
+    {
+        $unit = strtoupper(substr($size, -1));
+        $value = (int) substr($size, 0, -1);
+        
+        switch ($unit) {
+            case 'G':
+                $value *= 1024;
+                // fall through
+            case 'M':
+                $value *= 1024;
+                // fall through
+            case 'K':
+                $value *= 1024;
+        }
+        
+        return $value;
+    }
+
+    /**
+     * Build a hierarchical list of categories for display in dropdown
+     */
+    private function buildCategoryHierarchy($allCategories, $parentId = null, $prefix = '')
+    {
+        $hierarchy = [];
+        
+        foreach ($allCategories as $category) {
+            if ($category->parent_id == $parentId) {
+                // Add category with prefix for visual hierarchy
+                $hierarchy[] = (object)[
+                    'id' => $category->id,
+                    'name' => $prefix . $category->name,
+                    'parent_id' => $category->parent_id
+                ];
+                
+                // Recursively add children with increased indentation
+                $children = $this->buildCategoryHierarchy($allCategories, $category->id, $prefix . '→ ');
+                $hierarchy = array_merge($hierarchy, $children);
+            }
+        }
+        
+        return $hierarchy;
     }
 
     public function store(Request $request): RedirectResponse
     {
-        // Debug file upload issues before validation
+        // Get max upload size for validation
+        $maxUploadSize = $this->getMaxUploadSize();
+        $maxUploadSizeMB = $maxUploadSize / 1024 / 1024;
+
+        // Validate file sizes before processing
         if ($request->has('images')) {
+            $totalSize = 0;
+            $oversizedFiles = [];
+            
             foreach ($request->file('images') as $index => $file) {
-                if ($file && !$file->isValid()) {
+                if ($file && $file->isValid()) {
+                    $fileSize = $file->getSize();
+                    $totalSize += $fileSize;
+                    
+                    // Check individual file size
+                    if ($fileSize > $maxUploadSize) {
+                        $fileSizeMB = round($fileSize / 1024 / 1024, 2);
+                        $oversizedFiles[] = "{$file->getClientOriginalName()} ({$fileSizeMB}MB)";
+                    }
+                } elseif ($file) {
+                    // Handle invalid file uploads
                     $error = $file->getErrorMessage();
-                    Log::error("File upload validation error before Laravel validation", [
+                    Log::error("File upload validation error", [
                         'file_index' => $index,
                         'error_code' => $file->getError(),
                         'error_message' => $error,
@@ -46,15 +131,37 @@ public function index(): View
                         'file_size' => $file->getSize(),
                         'upload_max_filesize' => ini_get('upload_max_filesize'),
                         'post_max_size' => ini_get('post_max_size'),
-                        'max_file_uploads' => ini_get('max_file_uploads'),
-                        'temp_dir' => sys_get_temp_dir(),
-                        'temp_dir_writable' => is_writable(sys_get_temp_dir()),
                     ]);
                     
                     return back()->withErrors([
-                        'images' => "File upload failed for '{$file->getClientOriginalName()}': {$error}. Check server upload settings."
+                        'images' => __("File upload failed for ':filename': :error. Please check the file and try again.", [
+                            'filename' => $file->getClientOriginalName(),
+                            'error' => $error
+                        ])
                     ])->withInput();
                 }
+            }
+            
+            // Check if any files exceed the size limit
+            if (!empty($oversizedFiles)) {
+                $filesList = implode(', ', $oversizedFiles);
+                return back()->withErrors([
+                    'images' => __("The following files exceed the maximum upload size of :maxMB MB: :files. Please select smaller files.", [
+                        'maxMB' => round($maxUploadSizeMB, 0),
+                        'files' => $filesList
+                    ])
+                ])->withInput();
+            }
+            
+            // Check total size
+            if ($totalSize > $maxUploadSize) {
+                $totalSizeMB = round($totalSize / 1024 / 1024, 2);
+                return back()->withErrors([
+                    'images' => __("Total size of all files (:totalMB MB) exceeds the server limit of :maxMB MB. Please upload fewer images or reduce their size.", [
+                        'totalMB' => $totalSizeMB,
+                        'maxMB' => round($maxUploadSizeMB, 0)
+                    ])
+                ])->withInput();
             }
         }
 
@@ -164,12 +271,20 @@ public function index(): View
             abort(403, 'You are not authorized to edit this product.');
         }
 
-        $categories = Category::all();
+        // Get all categories with parent relationship
+        $allCategories = Category::with('parent')->orderBy('name')->get();
+        
+        // Build hierarchical list
+        $categories = $this->buildCategoryHierarchy($allCategories);
+        
+        // Get max upload size from server configuration
+        $maxUploadSize = $this->getMaxUploadSize();
+        
         $product->load('images', 'videos');
 
         return view(
             'admin.products.edit', 
-            compact('product', 'categories')
+            compact('product', 'categories', 'maxUploadSize')
         );
     }
 
@@ -179,12 +294,29 @@ public function index(): View
             abort(403, 'You are not authorized to edit this product.');
         }
 
-        // Debug file upload issues before validation
+        // Get max upload size for validation
+        $maxUploadSize = $this->getMaxUploadSize();
+        $maxUploadSizeMB = $maxUploadSize / 1024 / 1024;
+
+        // Validate file sizes before processing
         if ($request->has('images')) {
+            $totalSize = 0;
+            $oversizedFiles = [];
+            
             foreach ($request->file('images') as $index => $file) {
-                if ($file && !$file->isValid()) {
+                if ($file && $file->isValid()) {
+                    $fileSize = $file->getSize();
+                    $totalSize += $fileSize;
+                    
+                    // Check individual file size
+                    if ($fileSize > $maxUploadSize) {
+                        $fileSizeMB = round($fileSize / 1024 / 1024, 2);
+                        $oversizedFiles[] = "{$file->getClientOriginalName()} ({$fileSizeMB}MB)";
+                    }
+                } elseif ($file) {
+                    // Handle invalid file uploads
                     $error = $file->getErrorMessage();
-                    Log::error("File upload validation error before Laravel validation", [
+                    Log::error("File upload validation error", [
                         'file_index' => $index,
                         'error_code' => $file->getError(),
                         'error_message' => $error,
@@ -192,15 +324,37 @@ public function index(): View
                         'file_size' => $file->getSize(),
                         'upload_max_filesize' => ini_get('upload_max_filesize'),
                         'post_max_size' => ini_get('post_max_size'),
-                        'max_file_uploads' => ini_get('max_file_uploads'),
-                        'temp_dir' => sys_get_temp_dir(),
-                        'temp_dir_writable' => is_writable(sys_get_temp_dir()),
                     ]);
                     
                     return back()->withErrors([
-                        'images' => "File upload failed for '{$file->getClientOriginalName()}': {$error}. Check server upload settings."
+                        'images' => __("File upload failed for ':filename': :error. Please check the file and try again.", [
+                            'filename' => $file->getClientOriginalName(),
+                            'error' => $error
+                        ])
                     ])->withInput();
                 }
+            }
+            
+            // Check if any files exceed the size limit
+            if (!empty($oversizedFiles)) {
+                $filesList = implode(', ', $oversizedFiles);
+                return back()->withErrors([
+                    'images' => __("The following files exceed the maximum upload size of :maxMB MB: :files. Please select smaller files.", [
+                        'maxMB' => round($maxUploadSizeMB, 0),
+                        'files' => $filesList
+                    ])
+                ])->withInput();
+            }
+            
+            // Check total size
+            if ($totalSize > $maxUploadSize) {
+                $totalSizeMB = round($totalSize / 1024 / 1024, 2);
+                return back()->withErrors([
+                    'images' => __("Total size of all files (:totalMB MB) exceeds the server limit of :maxMB MB. Please upload fewer images or reduce their size.", [
+                        'totalMB' => $totalSizeMB,
+                        'maxMB' => round($maxUploadSizeMB, 0)
+                    ])
+                ])->withInput();
             }
         }
 

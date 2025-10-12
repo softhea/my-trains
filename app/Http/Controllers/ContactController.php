@@ -28,17 +28,23 @@ class ContactController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validationRules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:2000',
-            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+        ];
+
+        // Only require reCAPTCHA validation if not in local environment and user is not authenticated
+        if (!app()->environment('local') && !auth()->check()) {
+            $validationRules['g-recaptcha-response'] = ['required', function ($attribute, $value, $fail) {
                 if (!NoCaptcha::verifyResponse($value)) {
                     $fail(__('The reCAPTCHA verification failed. Please try again.'));
                 }
-            }],
-        ]);
+            }];
+        }
+
+        $request->validate($validationRules);
 
         $contactData = [
             'name' => $request->name,

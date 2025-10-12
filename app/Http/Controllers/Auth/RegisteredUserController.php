@@ -32,16 +32,22 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validationRules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', Rules\Password::defaults()],
-            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+        ];
+
+        // Only require reCAPTCHA validation if not in local environment and user is not authenticated
+        if (!app()->environment('local') && !Auth::check()) {
+            $validationRules['g-recaptcha-response'] = ['required', function ($attribute, $value, $fail) {
                 if (!NoCaptcha::verifyResponse($value)) {
                     $fail(__('The reCAPTCHA verification failed. Please try again.'));
                 }
-            }],
-        ]);
+            }];
+        }
+
+        $request->validate($validationRules);
 
         // Get default role for new users
         $defaultRole = Role::where('name', 'user')->first();

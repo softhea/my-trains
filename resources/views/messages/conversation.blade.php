@@ -81,6 +81,7 @@
             </div>
             
             <!-- CAPTCHA -->
+            @if(!app()->environment('local') && !auth()->check())
             <div class="mb-3">
               <label for="captcha" class="form-label">{{ __('Security Check') }}</label>
               <div class="mt-2">
@@ -91,6 +92,7 @@
                 @enderror
               </div>
             </div>
+            @endif
             
             <div class="d-flex justify-content-end">
               <button type="submit" class="btn btn-primary">
