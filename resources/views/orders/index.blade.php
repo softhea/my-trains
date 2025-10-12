@@ -10,6 +10,20 @@
   </div>
 
   @if($orders->count() > 0)
+    <!-- Total Summary Card -->
+    <div class="card mb-4 bg-light">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h5 class="card-title mb-1">{{ __('Order Summary') }}</h5>
+            <p class="text-muted mb-0">{{ __('Total orders: :count', ['count' => $orders->total()]) }}</p>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <h4 class="text-primary mb-0">{{ __('Total: $:amount', ['amount' => number_format($totalAmount, 2)]) }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="row">
       @foreach($orders as $order)
         <div class="col-md-6 col-lg-4 mb-4">

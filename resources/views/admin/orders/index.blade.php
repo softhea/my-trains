@@ -6,9 +6,77 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>{{ __('Order Management') }}</h1>
+    <div class="text-end">
+      <div class="badge bg-primary fs-6 px-3 py-2">
+        {{ __('Total Revenue: $:amount', ['amount' => number_format($totalAmount, 2)]) }}
+      </div>
+    </div>
   </div>
 
   @if($orders->count() > 0)
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-info text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">{{ __('Total Orders') }}</h6>
+                <h4 class="mb-0">{{ $orders->total() }}</h4>
+              </div>
+              <div>
+                <i class="fas fa-shopping-cart fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">{{ __('Pending Orders') }}</h6>
+                <h4 class="mb-0">{{ $orders->where('status', 'pending')->count() }}</h4>
+              </div>
+              <div>
+                <i class="fas fa-clock fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">{{ __('Completed Orders') }}</h6>
+                <h4 class="mb-0">{{ $orders->where('status', 'completed')->count() }}</h4>
+              </div>
+              <div>
+                <i class="fas fa-check-circle fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">{{ __('Total Revenue') }}</h6>
+                <h4 class="mb-0">${{ number_format($totalAmount, 2) }}</h4>
+              </div>
+              <div>
+                <i class="fas fa-dollar-sign fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="card">
       <div class="card-body">
         <div class="table-responsive">

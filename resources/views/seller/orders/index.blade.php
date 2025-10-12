@@ -9,6 +9,7 @@
                 <div>
                     <span class="badge bg-info me-2">{{ __('Total Orders: :count', ['count' => $orders->total()]) }}</span>
                     <span class="badge bg-warning me-2">{{ __('Pending: :count', ['count' => $orders->where('status', 'pending')->count()]) }}</span>
+                    <span class="badge bg-success me-2">{{ __('Total Revenue: $:amount', ['amount' => number_format($totalAmount, 2)]) }}</span>
                 </div>
             </div>
 
