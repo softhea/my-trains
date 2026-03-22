@@ -51,35 +51,29 @@ class Order extends Model
 
     /**
      * Get the original product (may be null if deleted).
+     * Access via: $order->orderProduct?->product
      */
-    public function product(): BelongsTo
+    public function getOriginalProductAttribute(): ?Product
     {
-        return $this->belongsTo(Product::class, 'order_product_id', 'id')
-            ->whereHas('orderProduct', function ($query) {
-                $query->whereColumn('order_products.product_id', 'products.id');
-            });
+        return $this->orderProduct?->product;
     }
 
     /**
      * Get the original seller user (may be null if deleted).
+     * Access via: $order->orderSeller?->user
      */
-    public function seller(): BelongsTo
+    public function getOriginalSellerAttribute(): ?User
     {
-        return $this->belongsTo(User::class, 'order_seller_id', 'id')
-            ->whereHas('orderSeller', function ($query) {
-                $query->whereColumn('order_sellers.user_id', 'users.id');
-            });
+        return $this->orderSeller?->user;
     }
 
     /**
      * Get the original buyer user (may be null if deleted).
+     * Access via: $order->orderBuyer?->user
      */
-    public function buyer(): BelongsTo
+    public function getOriginalBuyerAttribute(): ?User
     {
-        return $this->belongsTo(User::class, 'order_buyer_id', 'id')
-            ->whereHas('orderBuyer', function ($query) {
-                $query->whereColumn('order_buyers.user_id', 'users.id');
-            });
+        return $this->orderBuyer?->user;
     }
 
     /**
