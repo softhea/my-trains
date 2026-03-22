@@ -12,31 +12,31 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $query = Order::with(['user', 'product']);
+        $query = Order::with(['orderProduct', 'orderSeller', 'orderBuyer']);
 
         // Determine if this is a seller route or admin route
         $isSellerRoute = request()->routeIs('seller.*');
 
         if ($isSellerRoute) {
             // Seller routes: show only orders for current user's products
-            $query->whereHas('product', function ($q) {
+            $query->whereHas('orderSeller', function ($q) {
                 $q->where('user_id', auth()->id());
             });
             $view = 'seller.orders.index';
             
             // Calculate total for seller's product orders
-            $totalAmount = Order::whereHas('product', function ($q) {
+            $totalAmount = Order::whereHas('orderSeller', function ($q) {
                 $q->where('user_id', auth()->id());
             })->sum('total_price');
         } else {
             // Admin routes: admins see all orders, non-admins see only their product orders
             if (!auth()->user()->isAdmin()) {
-                $query->whereHas('product', function ($q) {
+                $query->whereHas('orderSeller', function ($q) {
                     $q->where('user_id', auth()->id());
                 });
                 
                 // Calculate total for non-admin user's product orders
-                $totalAmount = Order::whereHas('product', function ($q) {
+                $totalAmount = Order::whereHas('orderSeller', function ($q) {
                     $q->where('user_id', auth()->id());
                 })->sum('total_price');
             } else {
@@ -53,10 +53,11 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['user', 'product']);
+        $order->load(['orderProduct', 'orderSeller', 'orderBuyer']);
 
         // Check if user can view this order
-        if (!auth()->user()->isAdmin() && $order->product->user_id !== auth()->id()) {
+        $sellerUserId = $order->orderSeller?->user_id;
+        if (!auth()->user()->isAdmin() && $sellerUserId !== auth()->id()) {
             abort(403, 'You can only view orders for your own products.');
         }
 
@@ -77,9 +78,13 @@ class OrderController extends Controller
         $newStatus = $request->status;
 
         // Check if user can manage this order (admin or product owner)
-        if (!auth()->user()->isAdmin() && $order->product->user_id !== auth()->id()) {
+        $sellerUserId = $order->orderSeller?->user_id;
+        if (!auth()->user()->isAdmin() && $sellerUserId !== auth()->id()) {
             abort(403, 'You can only manage orders for your own products.');
         }
+
+        // Get the original product for stock management
+        $originalProduct = $order->orderProduct?->product;
 
         // Stock management logic:
         // - Stock is reduced when moving from 'pending' to 'processing' (seller accepts)
@@ -88,37 +93,46 @@ class OrderController extends Controller
 
         // If changing from pending to processing (seller accepts order)
         if ($oldStatus === 'pending' && $newStatus === 'processing') {
-            if (!$order->product->hasStock($order->quantity)) {
+            if ($originalProduct && !$originalProduct->hasStock($order->quantity)) {
                 return back()->with('error', __('Not enough stock available to accept this order.'));
             }
-            $order->product->reduceStock($order->quantity);
+            if ($originalProduct) {
+                $originalProduct->reduceStock($order->quantity);
+            }
         }
 
         // If changing from processing back to pending (seller rejects after accepting)
         if ($oldStatus === 'processing' && $newStatus === 'pending') {
-            $order->product->restoreStock($order->quantity);
+            if ($originalProduct) {
+                $originalProduct->restoreStock($order->quantity);
+            }
         }
 
         // If changing to cancelled from processing or completed, restore stock
         if (in_array($oldStatus, ['processing', 'completed']) && $newStatus === 'cancelled') {
-            $order->product->restoreStock($order->quantity);
+            if ($originalProduct) {
+                $originalProduct->restoreStock($order->quantity);
+            }
         }
 
         // If changing from cancelled to processing, reduce stock again
         if ($oldStatus === 'cancelled' && $newStatus === 'processing') {
-            if (!$order->product->hasStock($order->quantity)) {
+            if ($originalProduct && !$originalProduct->hasStock($order->quantity)) {
                 return back()->with('error', __('Not enough stock available to update this order.'));
             }
-            $order->product->reduceStock($order->quantity);
+            if ($originalProduct) {
+                $originalProduct->reduceStock($order->quantity);
+            }
         }
 
         $order->update(['status' => $newStatus]);
 
         // Send email notification to buyer when order is accepted (status changes to processing)
         if ($oldStatus === 'pending' && $newStatus === 'processing') {
-            $order->load(['user', 'seller', 'product']);
-            if ($order->user && $order->user->email) {
-                Mail::to($order->user->email)->send(new OrderAcceptedNotification($order));
+            $order->load(['orderProduct', 'orderSeller', 'orderBuyer']);
+            $buyerEmail = $order->orderBuyer?->email;
+            if ($buyerEmail) {
+                Mail::to($buyerEmail)->send(new OrderAcceptedNotification($order));
             }
         }
 
@@ -130,7 +144,10 @@ class OrderController extends Controller
         // Restore stock only if the order was in processing or completed status
         // (since pending orders never reduced stock)
         if (in_array($order->status, ['processing', 'completed'])) {
-            $order->product->restoreStock($order->quantity);
+            $originalProduct = $order->orderProduct?->product;
+            if ($originalProduct) {
+                $originalProduct->restoreStock($order->quantity);
+            }
         }
 
         $order->delete();

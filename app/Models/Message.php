@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Message extends Model
 {
+    use LogsActivity;
     protected $fillable = [
         'sender_id',
         'receiver_id',
@@ -85,5 +88,14 @@ class Message extends Model
                      ->where('receiver_id', $user1Id);
             });
         });
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "Message {$eventName}");
     }
 }

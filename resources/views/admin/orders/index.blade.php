@@ -96,35 +96,36 @@
             </thead>
             <tbody>
               @foreach($orders as $order)
+                @php $originalProduct = $order->orderProduct?->product; @endphp
                 <tr>
                   <td>
                     <strong>#{{ $order->id }}</strong>
                   </td>
                   <td>
                     <div>
-                      <strong>{{ $order->user->name }}</strong>
+                      <strong>{{ $order->orderBuyer?->name ?? '-' }}</strong>
                       <br>
-                      <small class="text-muted">{{ $order->user->email }}</small>
+                      <small class="text-muted">{{ $order->orderBuyer?->email ?? '' }}</small>
                     </div>
                   </td>
                   <td>
                     <div>
-                      <strong>{{ $order->seller->name ?? '—' }}</strong>
+                      <strong>{{ $order->orderSeller?->name ?? '—' }}</strong>
                       <br>
-                      <small class="text-muted">{{ $order->seller->email ?? '' }}</small>
+                      <small class="text-muted">{{ $order->orderSeller?->email ?? '' }}</small>
                     </div>
                   </td>
                   <td>
                     <div class="d-flex align-items-center">
-                      @if($order->product->images->count() > 0)
-                        <img src="{{ $order->product->images->first()->url }}" 
+                      @if($originalProduct && $originalProduct->images->count() > 0)
+                        <img src="{{ $originalProduct->images->first()->url }}" 
                              class="rounded me-2" 
                              style="width: 40px; height: 40px; object-fit: cover;">
                       @endif
                       <div>
-                        <strong>{{ $order->product->name }}</strong>
+                        <strong>{{ $order->orderProduct?->name ?? __('Product Unavailable') }}</strong>
                         <br>
-                        <small class="text-muted">${{ $order->product->price }} {{ __('each') }}</small>
+                        <small class="text-muted">${{ $order->orderProduct?->price ?? '0.00' }} {{ __('each') }}</small>
                       </div>
                     </div>
                   </td>
@@ -177,7 +178,7 @@
                         @csrf
                         @method('PUT')
                         <div class="modal-body">
-                          <p><strong>Order #{{ $order->id }}</strong> - {{ $order->product->name }}</p>
+                          <p><strong>Order #{{ $order->id }}</strong> - {{ $order->orderProduct?->name ?? __('Product Unavailable') }}</p>
                           <div class="mb-3">
                             <label for="status{{ $order->id }}" class="form-label">{{ __('Status') }}</label>
                             <select name="status" id="status{{ $order->id }}" class="form-select" required>

@@ -36,8 +36,9 @@
               
               <div class="row mb-3">
                 <div class="col-4">
-                  @if($order->product->images->count() > 0)
-                    <img src="{{ $order->product->images->first()->url }}" 
+                  @php $originalProduct = $order->orderProduct?->product; @endphp
+                  @if($originalProduct && $originalProduct->images->count() > 0)
+                    <img src="{{ $originalProduct->images->first()->url }}" 
                          class="img-fluid rounded" 
                          style="height: 80px; object-fit: cover;">
                   @else
@@ -47,8 +48,8 @@
                   @endif
                 </div>
                 <div class="col-8">
-                  <h6 class="mb-1">{{ $order->product->name }}</h6>
-                  <p class="text-muted small mb-1">{{ __('By') }}: {{ $order->product->user->name ?? ($order->seller->name ?? '-') }}</p>
+                  <h6 class="mb-1">{{ $order->orderProduct?->name ?? __('Product Unavailable') }}</h6>
+                  <p class="text-muted small mb-1">{{ __('By') }}: {{ $order->orderSeller?->name ?? '-' }}</p>
                   <p class="text-muted small mb-1">{{ __('Quantity') }}: {{ $order->quantity }}</p>
                   <p class="text-muted small mb-0">{{ __('Total') }}: ${{ $order->total_price }}</p>
                 </div>

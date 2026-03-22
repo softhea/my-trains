@@ -34,28 +34,25 @@ class OrderController extends Controller
         try {
             $order = null;
             DB::transaction(function () use ($request, $product, &$order) {
-                // Create the order
-                $totalPrice = $product->price * $request->quantity;
-                
-                $order = Order::create([
-                    'user_id' => auth()->id(),
-                    'seller_id' => $product->user_id,
-                    'product_id' => $request->product_id,
-                    'quantity' => $request->quantity,
-                    'total_price' => $totalPrice,
-                    'note' => $request->note,
-                    'status' => 'pending',
-                ]);
+                // Create the order with snapshots (stock is NOT reduced here)
+                $order = Order::createWithSnapshots(
+                    $product,
+                    auth()->user(),
+                    $request->quantity,
+                    $request->note
+                );
+
+                // Override status to pending (createWithSnapshots reduces stock, but we don't want that yet)
+                // Restore stock since we only reduce on acceptance
+                $product->restoreStock($request->quantity);
 
                 // Load relationships for email
-                $order->load(['user', 'seller', 'product']);
-
-                // Stock is NOT reduced here - it will be reduced when seller accepts (status -> processing)
+                $order->load(['orderProduct', 'orderSeller', 'orderBuyer']);
             });
 
             // Send email notification to seller
-            if ($order && $order->seller && $order->seller->email) {
-                Mail::to($order->seller->email)->send(new NewOrderNotification($order));
+            if ($order && $order->orderSeller && $order->orderSeller->email) {
+                Mail::to($order->orderSeller->email)->send(new NewOrderNotification($order));
             }
 
             return back()->with('success', __('Order placed successfully! We\'ll contact you soon.'));
@@ -67,7 +64,7 @@ class OrderController extends Controller
     public function index()
     {
         $orders = auth()->user()->orders()
-            ->with('product')
+            ->with(['orderProduct', 'orderSeller', 'orderBuyer'])
             ->latest()
             ->paginate(10);
 
@@ -80,9 +77,12 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         // Ensure user can only view their own orders
-        if ($order->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+        $buyerUserId = $order->orderBuyer?->user_id;
+        if ($buyerUserId !== auth()->id() && !auth()->user()->isAdmin()) {
             abort(403);
         }
+
+        $order->load(['orderProduct', 'orderSeller', 'orderBuyer']);
 
         return view('orders.show', compact('order'));
     }
@@ -90,7 +90,8 @@ class OrderController extends Controller
     public function cancel(Order $order)
     {
         // Ensure user can only cancel their own orders
-        if ($order->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+        $buyerUserId = $order->orderBuyer?->user_id;
+        if ($buyerUserId !== auth()->id() && !auth()->user()->isAdmin()) {
             abort(403);
         }
 

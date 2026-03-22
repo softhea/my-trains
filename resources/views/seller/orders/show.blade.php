@@ -2,6 +2,10 @@
 
 @section('content')
 <div class="container">
+    @php 
+        $originalProduct = $order->orderProduct?->product;
+        $originalBuyer = $order->orderBuyer?->user;
+    @endphp
     <div class="row">
         <div class="col-md-8">
             <!-- Order Details -->
@@ -15,25 +19,33 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6>{{ __('Customer Information') }}</h6>
-                            <p class="mb-1"><strong>{{ __('Name:') }}</strong> {{ $order->user->name }}</p>
-                            <p class="mb-1"><strong>{{ __('Email:') }}</strong> {{ $order->user->email }}</p>
-                            <p class="mb-3"><strong>{{ __('Provider:') }}</strong> 
-                                @if($order->user->isGoogleUser())
-                                    <span class="badge bg-danger">Google</span>
-                                @elseif($order->user->isAppleUser())
-                                    <span class="badge bg-dark">Apple</span>
-                                @else
-                                    <span class="badge bg-secondary">Email</span>
-                                @endif
-                            </p>
+                            <h6>{{ __('Customer Information') }} <small class="text-muted">({{ __('at time of order') }})</small></h6>
+                            <p class="mb-1"><strong>{{ __('Name:') }}</strong> {{ $order->orderBuyer?->name ?? '-' }}</p>
+                            <p class="mb-1"><strong>{{ __('Email:') }}</strong> {{ $order->orderBuyer?->email ?? '-' }}</p>
+                            @if($order->orderBuyer?->phone)
+                                <p class="mb-1"><strong>{{ __('Phone:') }}</strong> {{ $order->orderBuyer->phone }}</p>
+                            @endif
+                            @if($order->orderBuyer?->city)
+                                <p class="mb-1"><strong>{{ __('City:') }}</strong> {{ $order->orderBuyer->city }}</p>
+                            @endif
+                            @if($originalBuyer)
+                                <p class="mb-3"><strong>{{ __('Provider:') }}</strong> 
+                                    @if($originalBuyer->isGoogleUser())
+                                        <span class="badge bg-danger">Google</span>
+                                    @elseif($originalBuyer->isAppleUser())
+                                        <span class="badge bg-dark">Apple</span>
+                                    @else
+                                        <span class="badge bg-secondary">Email</span>
+                                    @endif
+                                </p>
+                            @endif
                         </div>
                         <div class="col-md-6">
                             <h6>{{ __('Order Information') }}</h6>
                             <p class="mb-1"><strong>{{ __('Order Date:') }}</strong> {{ $order->created_at->format('M d, Y \a\t g:i A') }}</p>
                             <p class="mb-1"><strong>{{ __('Last Updated:') }}</strong> {{ $order->updated_at->format('M d, Y \a\t g:i A') }}</p>
                             <p class="mb-1"><strong>{{ __('Total Amount:') }}</strong> 
-                                <span class="text-success fw-bold">{{ format_currency($order->total_price, $order->product->currency) }}</span>
+                                <span class="text-success fw-bold">{{ format_currency($order->total_price, $order->orderProduct?->currency ?? 'RON') }}</span>
                             </p>
                         </div>
                     </div>
@@ -53,14 +65,14 @@
             <!-- Product Details -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">{{ __('Product Details') }}</h5>
+                    <h5 class="mb-0">{{ __('Product Details') }} <small class="text-muted">({{ __('at time of order') }})</small></h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            @if($order->product->images->count() > 0)
-                                <img src="{{ $order->product->images->first()->url }}" 
-                                     alt="{{ $order->product->name }}" 
+                            @if($originalProduct && $originalProduct->images->count() > 0)
+                                <img src="{{ $originalProduct->images->first()->url }}" 
+                                     alt="{{ $order->orderProduct?->name }}" 
                                      class="img-fluid rounded">
                             @else
                                 <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 200px;">
@@ -69,40 +81,44 @@
                             @endif
                         </div>
                         <div class="col-md-8">
-                            <h4>{{ $order->product->name }}</h4>
-                            <p class="text-muted mb-3" style="white-space: pre-wrap;">{{ Str::limit($order->product->description, 200) }}</p>
+                            <h4>{{ $order->orderProduct?->name ?? __('Product Unavailable') }}</h4>
+                            <p class="text-muted mb-3" style="white-space: pre-wrap;">{{ Str::limit($order->orderProduct?->description, 200) }}</p>
                             
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>{{ __('Unit Price:') }}</strong> {{ format_currency($order->product->price, $order->product->currency) }}</p>
+                                    <p class="mb-1"><strong>{{ __('Unit Price (at order):') }}</strong> {{ format_currency($order->orderProduct?->price ?? 0, $order->orderProduct?->currency ?? 'RON') }}</p>
                                     <p class="mb-1"><strong>{{ __('Quantity Ordered:') }}</strong> {{ $order->quantity }}</p>
-                                    <p class="mb-1"><strong>{{ __('Current Stock:') }}</strong> 
-                                        <span class="badge bg-{{ $order->product->getStockStatus() === 'out_of_stock' ? 'danger' : ($order->product->getStockStatus() === 'low_stock' ? 'warning' : 'success') }}">
-                                            {{ $order->product->no_of_items }} {{ __('items') }}
-                                        </span>
-                                    </p>
+                                    @if($originalProduct)
+                                        <p class="mb-1"><strong>{{ __('Current Stock:') }}</strong> 
+                                            <span class="badge bg-{{ $originalProduct->getStockStatus() === 'out_of_stock' ? 'danger' : ($originalProduct->getStockStatus() === 'low_stock' ? 'warning' : 'success') }}">
+                                                {{ $originalProduct->no_of_items }} {{ __('items') }}
+                                            </span>
+                                        </p>
+                                    @endif
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>{{ __('Category:') }}</strong> {{ $order->product->category->name ?? __('Uncategorized') }}</p>
+                                    <p class="mb-1"><strong>{{ __('Category:') }}</strong> {{ $order->orderProduct?->category_name ?? __('Uncategorized') }}</p>
                                     <p class="mb-1"><strong>{{ __('Total Price:') }}</strong> 
-                                        <span class="text-success fw-bold">{{ format_currency($order->total_price, $order->product->currency) }}</span>
+                                        <span class="text-success fw-bold">{{ format_currency($order->total_price, $order->orderProduct?->currency ?? 'RON') }}</span>
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="mt-3">
-                                <a href="{{ route('products.show', $order->product) }}" 
-                                   class="btn btn-outline-primary btn-sm" 
-                                   target="_blank">
-                                    <i class="fas fa-external-link-alt me-1"></i>
-                                    {{ __('View Product Page') }}
-                                </a>
-                                <a href="{{ route('admin.products.edit', $order->product) }}" 
-                                   class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-edit me-1"></i>
-                                    {{ __('Edit Product') }}
-                                </a>
-                            </div>
+                            @if($originalProduct)
+                                <div class="mt-3">
+                                    <a href="{{ route('products.show', $originalProduct) }}" 
+                                       class="btn btn-outline-primary btn-sm" 
+                                       target="_blank">
+                                        <i class="fas fa-external-link-alt me-1"></i>
+                                        {{ __('View Product Page') }}
+                                    </a>
+                                    <a href="{{ route('admin.products.edit', $originalProduct) }}" 
+                                       class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-edit me-1"></i>
+                                        {{ __('Edit Product') }}
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -203,30 +219,32 @@
             </div>
 
             <!-- Stock Information -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">{{ __('Stock Information') }}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>{{ __('Current Stock:') }}</span>
-                        <span class="badge bg-{{ $order->product->getStockStatus() === 'out_of_stock' ? 'danger' : ($order->product->getStockStatus() === 'low_stock' ? 'warning' : 'success') }}">
-                            {{ $order->product->no_of_items }}
-                        </span>
+            @if($originalProduct)
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{ __('Stock Information') }}</h5>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>{{ __('Order Quantity:') }}</span>
-                        <span class="badge bg-info">{{ $order->quantity }}</span>
-                    </div>
-                    @if($order->status === 'pending')
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span>{{ __('After Acceptance:') }}</span>
-                            <span class="badge bg-secondary">{{ max(0, $order->product->no_of_items - $order->quantity) }}</span>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ __('Current Stock:') }}</span>
+                            <span class="badge bg-{{ $originalProduct->getStockStatus() === 'out_of_stock' ? 'danger' : ($originalProduct->getStockStatus() === 'low_stock' ? 'warning' : 'success') }}">
+                                {{ $originalProduct->no_of_items }}
+                            </span>
                         </div>
-                        <small class="text-muted">{{ __('Stock will be reduced when you accept the order') }}</small>
-                    @endif
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ __('Order Quantity:') }}</span>
+                            <span class="badge bg-info">{{ $order->quantity }}</span>
+                        </div>
+                        @if($order->status === 'pending')
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>{{ __('After Acceptance:') }}</span>
+                                <span class="badge bg-secondary">{{ max(0, $originalProduct->no_of_items - $order->quantity) }}</span>
+                            </div>
+                            <small class="text-muted">{{ __('Stock will be reduced when you accept the order') }}</small>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 

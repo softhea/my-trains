@@ -8,11 +8,13 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -151,11 +153,33 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Get the user's orders.
+     * Get the user's orders as buyer (via order_buyers snapshot).
      */
     public function orders()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasManyThrough(
+            Order::class,
+            OrderBuyer::class,
+            'user_id',
+            'order_buyer_id',
+            'id',
+            'id'
+        );
+    }
+
+    /**
+     * Get orders where user is the seller (via order_sellers snapshot).
+     */
+    public function salesOrders()
+    {
+        return $this->hasManyThrough(
+            Order::class,
+            OrderSeller::class,
+            'user_id',
+            'order_seller_id',
+            'id',
+            'id'
+        );
     }
 
     /**
@@ -265,5 +289,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function canPlaceOrders(): bool
     {
         return $this->isVerified();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'email', 'phone', 'city', 'role_id', 'is_protected', 'email_verified_at'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "User {$eventName}");
     }
 }

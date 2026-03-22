@@ -15,10 +15,11 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-4">
-              @if($order->product->images->count() > 0)
-                <img src="{{ $order->product->images->first()->url }}" 
+              @php $originalProduct = $order->orderProduct?->product; @endphp
+              @if($originalProduct && $originalProduct->images->count() > 0)
+                <img src="{{ $originalProduct->images->first()->url }}" 
                      class="img-fluid rounded" 
-                     alt="{{ $order->product->name }}">
+                     alt="{{ $order->orderProduct?->name }}">
               @else
                 <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 200px;">
                   <i class="fas fa-image fa-3x text-muted"></i>
@@ -26,13 +27,13 @@
               @endif
             </div>
             <div class="col-md-8">
-              <h3>{{ $order->product->name }}</h3>
-              <p class="text-muted mb-1">{{ __('By') }}: {{ $order->product->user->name ?? ($order->seller->name ?? '-') }}</p>
-              <p class="text-muted">{{ $order->product->description }}</p>
+              <h3>{{ $order->orderProduct?->name ?? __('Product Unavailable') }}</h3>
+              <p class="text-muted mb-1">{{ __('By') }}: {{ $order->orderSeller?->name ?? '-' }}</p>
+              <p class="text-muted">{{ $order->orderProduct?->description }}</p>
               
               <div class="row mb-3">
                 <div class="col-sm-6">
-                  <strong>{{ __('Unit Price') }}:</strong> ${{ $order->product->price }}
+                  <strong>{{ __('Unit Price') }}:</strong> ${{ $order->orderProduct?->price ?? '0.00' }}
                 </div>
                 <div class="col-sm-6">
                   <strong>{{ __('Quantity') }}:</strong> {{ $order->quantity }}
@@ -73,9 +74,11 @@
             </form>
           @endif
           
-          <a href="{{ route('products.show', $order->product) }}" class="btn btn-outline-primary w-100 mb-2">
-            {{ __('View Product') }}
-          </a>
+          @if($originalProduct)
+            <a href="{{ route('products.show', $originalProduct) }}" class="btn btn-outline-primary w-100 mb-2">
+              {{ __('View Product') }}
+            </a>
+          @endif
           
           <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary w-100">
             {{ __('Back to Orders') }}

@@ -12,6 +12,7 @@
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.10.1",
         "socialiteproviders/apple": "^5.7",
+        "spatie/laravel-activitylog": "^4.12",
         "symfony/resend-mailer": "^7.3"
     },
     "require-dev": {

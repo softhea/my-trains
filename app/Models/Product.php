@@ -7,9 +7,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends Model
 {
+    use LogsActivity;
+
     public $fillable = [
         'name',
         'description', 
@@ -45,9 +50,19 @@ class Product extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function orders(): HasMany
+    /**
+     * Get orders for this product (via order_products snapshot).
+     */
+    public function orders(): HasManyThrough
     {
-        return $this->hasMany(Order::class);
+        return $this->hasManyThrough(
+            Order::class,
+            OrderProduct::class,
+            'product_id',
+            'order_product_id',
+            'id',
+            'id'
+        );
     }
 
     /**
@@ -118,5 +133,14 @@ class Product extends Model
             'RON' => 'RON (Romanian Leu)',
             'EUR' => 'EUR (Euro)',
         ];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "Product {$eventName}");
     }
 }

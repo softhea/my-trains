@@ -50,35 +50,38 @@
                                 </thead>
                                 <tbody>
                                     @foreach($orders as $order)
+                                        @php $originalProduct = $order->orderProduct?->product; @endphp
                                         <tr>
                                             <td>
                                                 <strong>#{{ $order->id }}</strong>
                                             </td>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    @if($order->product->images->count() > 0)
-                                                        <img src="{{ $order->product->images->first()->url }}" 
-                                                             alt="{{ $order->product->name }}" 
+                                                    @if($originalProduct && $originalProduct->images->count() > 0)
+                                                        <img src="{{ $originalProduct->images->first()->url }}" 
+                                                             alt="{{ $order->orderProduct?->name }}" 
                                                              class="rounded me-2"
                                                              style="width: 40px; height: 40px; object-fit: cover;">
                                                     @endif
                                                     <div>
-                                                        <strong>{{ $order->product->name }}</strong>
+                                                        <strong>{{ $order->orderProduct?->name ?? __('Product Unavailable') }}</strong>
                                                         <br>
-                                                        <small class="text-muted">{{ __('Stock: :count', ['count' => $order->product->no_of_items]) }}</small>
+                                                        @if($originalProduct)
+                                                            <small class="text-muted">{{ __('Stock: :count', ['count' => $originalProduct->no_of_items]) }}</small>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div>
-                                                    <strong>{{ $order->user->name }}</strong>
+                                                    <strong>{{ $order->orderBuyer?->name ?? '-' }}</strong>
                                                     <br>
-                                                    <small class="text-muted">{{ $order->user->email }}</small>
+                                                    <small class="text-muted">{{ $order->orderBuyer?->email ?? '' }}</small>
                                                 </div>
                                             </td>
                                             <td>{{ $order->quantity }}</td>
                                             <td>
-                                                <strong>{{ format_currency($order->total_price, $order->product->currency) }}</strong>
+                                                <strong>{{ format_currency($order->total_price, $order->orderProduct?->currency ?? 'RON') }}</strong>
                                             </td>
                                             <td>
                                                 <span class="badge bg-{{ $order->getStatusColor() }}">

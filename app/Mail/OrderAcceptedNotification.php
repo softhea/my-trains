@@ -43,9 +43,9 @@ class OrderAcceptedNotification extends Mailable //implements ShouldQueue
             view: 'emails.order-accepted',
             with: [
                 'order' => $this->order,
-                'buyer' => $this->order->user,
-                'seller' => $this->order->seller,
-                'product' => $this->order->product,
+                'buyer' => $this->order->orderBuyer,
+                'seller' => $this->order->orderSeller,
+                'product' => $this->order->orderProduct,
             ],
         );
     }
