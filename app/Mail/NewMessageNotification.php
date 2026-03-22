@@ -10,19 +10,16 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class NewMessageNotification extends Mailable //implements ShouldQueue
+class NewMessageNotification extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public Message $userMessage;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Message $message)
-    {
-        $this->userMessage = $message;
-    }
+    public function __construct(
+        public Message $userMessage
+    ) {}
 
     /**
      * Get the message envelope.
@@ -30,7 +27,7 @@ class NewMessageNotification extends Mailable //implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('New Message: :subject', ['subject' => $this->userMessage->subject]),
+            subject: __('New Message: :subject', ['subject' => $this->userMessage->subject ?? 'No Subject']),
         );
     }
 
