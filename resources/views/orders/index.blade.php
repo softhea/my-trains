@@ -19,7 +19,7 @@
             <p class="text-muted mb-0">{{ __('Total orders: :count', ['count' => $orders->total()]) }}</p>
           </div>
           <div class="col-md-4 text-md-end">
-            <h4 class="text-primary mb-0">{{ __('Total: $:amount', ['amount' => number_format($totalAmount, 2)]) }}</h4>
+            <h4 class="text-primary mb-0">{{ __('Total') }}: {{ format_currency($totalAmount) }}</h4>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@
                   <h6 class="mb-1">{{ $order->orderProduct?->name ?? __('Product Unavailable') }}</h6>
                   <p class="text-muted small mb-1">{{ __('By') }}: {{ $order->orderSeller?->name ?? '-' }}</p>
                   <p class="text-muted small mb-1">{{ __('Quantity') }}: {{ $order->quantity }}</p>
-                  <p class="text-muted small mb-0">{{ __('Total') }}: ${{ $order->total_price }}</p>
+                  <p class="text-muted small mb-0">{{ __('Total') }}: {{ format_currency($order->total_price, $order->orderProduct?->currency ?? 'RON') }}</p>
                 </div>
               </div>
               

@@ -33,7 +33,7 @@
               
               <div class="row mb-3">
                 <div class="col-sm-6">
-                  <strong>{{ __('Unit Price') }}:</strong> ${{ $order->orderProduct?->price ?? '0.00' }}
+                  <strong>{{ __('Unit Price') }}:</strong> {{ format_currency($order->orderProduct?->price ?? 0, $order->orderProduct?->currency ?? 'RON') }}
                 </div>
                 <div class="col-sm-6">
                   <strong>{{ __('Quantity') }}:</strong> {{ $order->quantity }}
@@ -42,7 +42,7 @@
               
               <div class="row mb-3">
                 <div class="col-sm-6">
-                  <strong>{{ __('Total Price') }}:</strong> ${{ $order->total_price }}
+                  <strong>{{ __('Total Price') }}:</strong> {{ format_currency($order->total_price, $order->orderProduct?->currency ?? 'RON') }}
                 </div>
                 <div class="col-sm-6">
                   <strong>{{ __('Order Date') }}:</strong> {{ $order->created_at->format('M d, Y \a\t g:i A') }}

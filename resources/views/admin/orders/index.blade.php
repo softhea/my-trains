@@ -4,12 +4,12 @@
 
 @section('content')
 <div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h1>{{ __('Order Management') }}</h1>
     <div class="text-end">
-      <div class="badge bg-primary fs-6 px-3 py-2">
-        {{ __('Total Revenue: $:amount', ['amount' => number_format($totalAmount, 2)]) }}
-      </div>
+      <span class="badge bg-primary fs-6 px-3 py-2 text-nowrap">
+        {{ __('Total Revenue') }}: {{ format_currency($totalAmount) }}
+      </span>
     </div>
   </div>
 
@@ -67,10 +67,10 @@
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">{{ __('Total Revenue') }}</h6>
-                <h4 class="mb-0">${{ number_format($totalAmount, 2) }}</h4>
+                <h4 class="mb-0">{{ format_currency($totalAmount) }}</h4>
               </div>
               <div>
-                <i class="fas fa-dollar-sign fa-2x"></i>
+                <i class="fas fa-coins fa-2x"></i>
               </div>
             </div>
           </div>
@@ -125,12 +125,12 @@
                       <div>
                         <strong>{{ $order->orderProduct?->name ?? __('Product Unavailable') }}</strong>
                         <br>
-                        <small class="text-muted">${{ $order->orderProduct?->price ?? '0.00' }} {{ __('each') }}</small>
+                        <small class="text-muted">{{ format_currency($order->orderProduct?->price ?? 0, $order->orderProduct?->currency ?? 'RON') }} {{ __('each') }}</small>
                       </div>
                     </div>
                   </td>
                   <td>{{ $order->quantity }}</td>
-                  <td><strong>${{ $order->total_price }}</strong></td>
+                  <td><strong>{{ format_currency($order->total_price, $order->orderProduct?->currency ?? 'RON') }}</strong></td>
                   <td>
                     <span class="badge bg-{{ $order->getStatusColor() }} px-2 py-1">
                       {{ $order->getFormattedStatus() }}

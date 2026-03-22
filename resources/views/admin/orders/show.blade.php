@@ -71,7 +71,7 @@
               
               <div class="row">
                 <div class="col-sm-6">
-                  <strong>{{ __('Unit Price (at order)') }}:</strong> ${{ $order->orderProduct?->price ?? '0.00' }}
+                  <strong>{{ __('Unit Price (at order)') }}:</strong> {{ format_currency($order->orderProduct?->price ?? 0, $order->orderProduct?->currency ?? 'RON') }}
                 </div>
                 <div class="col-sm-6">
                   @if($originalProduct)
@@ -113,10 +113,10 @@
               <strong>{{ __('Quantity Ordered') }}:</strong> {{ $order->quantity }}
             </div>
             <div class="col-md-4">
-              <strong>{{ __('Unit Price') }}:</strong> ${{ $order->orderProduct?->price ?? '0.00' }}
+              <strong>{{ __('Unit Price') }}:</strong> {{ format_currency($order->orderProduct?->price ?? 0, $order->orderProduct?->currency ?? 'RON') }}
             </div>
             <div class="col-md-4">
-              <strong>{{ __('Total Price') }}:</strong> <span class="h5 text-primary">${{ $order->total_price }}</span>
+              <strong>{{ __('Total Price') }}:</strong> <span class="h5 text-primary">{{ format_currency($order->total_price, $order->orderProduct?->currency ?? 'RON') }}</span>
             </div>
           </div>
 

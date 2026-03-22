@@ -4,12 +4,12 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h1 class="h3">{{ __('My Product Orders') }}</h1>
-                <div>
-                    <span class="badge bg-info me-2">{{ __('Total Orders: :count', ['count' => $orders->total()]) }}</span>
-                    <span class="badge bg-warning me-2">{{ __('Pending: :count', ['count' => $orders->where('status', 'pending')->count()]) }}</span>
-                    <span class="badge bg-success me-2">{{ __('Total Revenue: $:amount', ['amount' => number_format($totalAmount, 2)]) }}</span>
+                <div class="d-flex flex-wrap gap-1">
+                    <span class="badge bg-info">{{ __('Total Orders') }}: {{ $orders->total() }}</span>
+                    <span class="badge bg-warning">{{ __('Pending') }}: {{ $orders->where('status', 'pending')->count() }}</span>
+                    <span class="badge bg-success text-nowrap">{{ __('Total Revenue') }}: {{ format_currency($totalAmount) }}</span>
                 </div>
             </div>
 

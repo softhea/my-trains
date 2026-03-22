@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessImage;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Image;
@@ -226,6 +228,9 @@ public function index(): View
                         Storage::disk('public')->delete($path);
                         throw new \Exception("Failed to save image record to database at index $index");
                     }
+                    
+                    // Dispatch async processing job
+                    ProcessImage::dispatch($imageRecord, 'product');
 
                 } catch (\Exception $e) {
                     Log::error("Product image upload error: " . $e->getMessage(), [
@@ -416,6 +421,9 @@ public function index(): View
                         Storage::disk('public')->delete($path);
                         throw new \Exception("Failed to save image record to database at index $index");
                     }
+                    
+                    // Dispatch async processing job
+                    ProcessImage::dispatch($imageRecord, 'product');
 
                 } catch (\Exception $e) {
                     Log::error("Product image upload error: " . $e->getMessage(), [
@@ -462,7 +470,7 @@ public function index(): View
             ->with('success', __('Product updated successfully!'));
     }
 
-    public function destroy(Product $product): RedirectResponse
+    public function destroy(Product $product, ImageService $imageService): RedirectResponse
     {
         /**
          * todo use permission
@@ -471,13 +479,12 @@ public function index(): View
             abort(403, 'You are not authorized to delete this product.');
         }
 
-        // Delete product images from storage
+        // Delete product images from storage (handles both processed and original files)
         foreach ($product->images as $image) {
-            $path = str_replace('/storage/', '', $image->url);
-            Storage::disk('public')->delete($path);
+            $imageService->deleteImage($image);
         }
 
-        // Delete the product (cascade will handle images and videos)
+        // Delete the product (cascade will handle videos)
         $product->delete();
 
         $redirectRoute = 'admin.products.index';
@@ -490,7 +497,7 @@ public function index(): View
             ->with('success', __('Product deleted successfully!'));
     }
 
-    public function deleteImage(Image $image): JsonResponse
+    public function deleteImage(Image $image, ImageService $imageService): JsonResponse
     {
         // Verify the image belongs to a product
         if ($image->imageable_type !== Product::class) {
@@ -500,12 +507,8 @@ public function index(): View
             );
         }
 
-        // Delete from storage
-        $path = str_replace('/storage/', '', $image->url);
-        Storage::disk('public')->delete($path);
-
-        // Delete from database
-        $image->delete();
+        // Delete image using service (handles both processed and original files)
+        $imageService->deleteImage($image);
 
         return response()->json([
             'success' => 'Image deleted successfully'

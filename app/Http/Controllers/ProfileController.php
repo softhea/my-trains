@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Jobs\ProcessImage;
 use App\Models\Image;
+use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,16 +37,17 @@ class ProfileController extends Controller
         if ($request->hasFile('image')) {
             // Delete old image if it exists
             if ($user->image) {
-                $oldImagePath = str_replace('/storage/', '', $user->image->url);
-                Storage::disk('public')->delete($oldImagePath);
-                $user->image->delete();
+                app(ImageService::class)->deleteImage($user->image);
             }
 
             // Store new image
             $imagePath = $request->file('image')->store('users', 'public');
-            $user->image()->create([
+            $image = $user->image()->create([
                 'url' => '/storage/' . $imagePath
             ]);
+            
+            // Dispatch async processing job
+            ProcessImage::dispatch($image, 'profile');
         }
 
         // Remove image from validated data since we handle it separately
@@ -74,9 +77,7 @@ class ProfileController extends Controller
 
         // Delete user's profile image if it exists
         if ($user->image) {
-            $imagePath = str_replace('/storage/', '', $user->image->url);
-            Storage::disk('public')->delete($imagePath);
-            $user->image->delete();
+            app(ImageService::class)->deleteImage($user->image);
         }
 
         Auth::logout();
