@@ -6,10 +6,8 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h1>{{ __('Order Management') }}</h1>
-    <div class="text-end">
-      <span class="badge bg-primary fs-6 px-3 py-2 text-nowrap">
-        {{ __('Total Revenue') }}: {{ format_currency($totalAmount) }}
-      </span>
+    <div class="bg-primary text-white rounded px-3 py-2 fs-6">
+      <strong>{{ __('Total Revenue') }}:</strong> {{ format_currency($totalAmount) }}
     </div>
   </div>
 
