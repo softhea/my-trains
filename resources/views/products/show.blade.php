@@ -68,7 +68,9 @@
     <div class="col-md-6">
       <h1>{{ $product->name }}</h1>
       <p class="text-muted mb-1">{{ __('Added By') }}: {{ $product->user->name ?? '-' }}</p>
-      <p class="lead">{{ $product->formatted_price }}</p>
+      @if($product->price > 0)
+        <p class="lead">{{ $product->formatted_price }}</p>
+      @endif
       
       <!-- Stock Status -->
       <div class="mb-3">
@@ -101,7 +103,39 @@
           </div>
         @endif
 
-        @if($product->isOutOfStock())
+        @if(!$product->is_active)
+          <div class="alert alert-warning">
+            <strong>{{ __('Unavailable') }}</strong> {{ __('This product is currently not available for purchase.') }}
+          </div>
+        @elseif($product->isBundleOnly())
+          <div class="alert alert-info">
+            <i class="fas fa-box-open me-2"></i>
+            <strong>{{ __('Bundle Only') }}</strong> {{ __('This product is only available as part of a bundle.') }}
+            @if(isset($activeBundles) && $activeBundles->count() > 0)
+              <hr>
+              <p class="mb-2"><strong>{{ __('Available in these bundles:') }}</strong></p>
+              @foreach($activeBundles as $bundle)
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-white rounded">
+                  <div>
+                    <strong>{{ $bundle->name }}</strong>
+                    <br>
+                    <small class="text-muted">{{ $bundle->products->count() }} {{ __('products') }}</small>
+                  </div>
+                  <div class="text-end">
+                    @if($bundle->has_meaningful_savings)
+                      <span class="text-decoration-line-through text-muted">{{ format_currency($bundle->total_products_value, $bundle->currency) }}</span>
+                      <br>
+                      <strong class="text-success">{{ $bundle->formatted_price }}</strong>
+                      <span class="badge bg-success">-{{ $bundle->savings_percentage }}%</span>
+                    @else
+                      <strong class="text-success">{{ $bundle->formatted_price }}</strong>
+                    @endif
+                  </div>
+                </div>
+              @endforeach
+            @endif
+          </div>
+        @elseif($product->isOutOfStock())
           <div class="alert alert-warning">
             <strong>{{ __('Sorry!') }}</strong> {{ __('This product is currently out of stock.') }}
           </div>
@@ -120,6 +154,32 @@
             </div>
             <button class="btn btn-success">{{ __('Place Order') }}</button>
           </form>
+
+          @if(isset($activeBundles) && $activeBundles->count() > 0)
+            <div class="mt-4 p-3 bg-light rounded">
+              <h5><i class="fas fa-box-open me-2"></i>{{ __('Also available in bundles') }}</h5>
+              @foreach($activeBundles as $bundle)
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-white rounded border">
+                  <div>
+                    <strong>{{ $bundle->name }}</strong>
+                    <br>
+                    <small class="text-muted">
+                      {{ $bundle->products->count() }} {{ __('products') }}
+                      @if($bundle->has_meaningful_savings)
+                        - {{ __('Save') }} {{ $bundle->savings_percentage }}%
+                      @endif
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    @if($bundle->has_meaningful_savings)
+                      <span class="text-decoration-line-through text-muted small">{{ format_currency($bundle->total_products_value, $bundle->currency) }}</span>
+                    @endif
+                    <strong class="text-success {{ $bundle->has_meaningful_savings ? 'ms-2' : '' }}">{{ $bundle->formatted_price }}</strong>
+                  </div>
+                </div>
+              @endforeach
+            </div>
+          @endif
         @endif
       @else
         <!-- For non-authenticated users -->

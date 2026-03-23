@@ -182,12 +182,19 @@ class Order extends Model
 
     /**
      * Create an order with snapshots.
+     * 
+     * @param Product $product The product being ordered
+     * @param User $buyer The user placing the order
+     * @param int $quantity Number of items
+     * @param string|null $note Optional order note
+     * @param float|null $customPrice Optional custom total price (for bundle orders)
      */
     public static function createWithSnapshots(
         Product $product,
         User $buyer,
         int $quantity,
-        ?string $note = null
+        ?string $note = null,
+        ?float $customPrice = null
     ): self {
         $seller = $product->user;
 
@@ -196,8 +203,8 @@ class Order extends Model
         $orderSeller = $seller ? OrderSeller::createFromUser($seller) : null;
         $orderBuyer = OrderBuyer::createFromUser($buyer);
 
-        // Calculate total price
-        $totalPrice = $product->price * $quantity;
+        // Calculate total price (use custom price if provided, e.g., for bundle discounts)
+        $totalPrice = $customPrice ?? ($product->price * $quantity);
 
         // Create order
         $order = self::create([

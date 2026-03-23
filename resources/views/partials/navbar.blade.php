@@ -196,14 +196,27 @@
               <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item" href="{{ route('admin.products.create') }}">
-                  <i class="fas fa-box-open me-2"></i>
+                  <i class="fas fa-plus me-2"></i>
                   {{ __('Add Product') }}
                 </a>
               </li>              
               <li>
                 <a class="dropdown-item" href="{{ route('my.products') }}">
-                  <i class="fas fa-box-open me-2"></i>
+                  <i class="fas fa-box me-2"></i>
                   {{ __('My Products') }}
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="{{ route('admin.bundles.create') }}">
+                  <i class="fas fa-plus me-2"></i>
+                  {{ __('Add Bundle') }}
+                </a>
+              </li>              
+              <li>
+                <a class="dropdown-item" href="{{ route('seller.bundles.index') }}">
+                  <i class="fas fa-box-open me-2"></i>
+                  {{ __('My Bundles') }}
                 </a>
               </li>
               <li><hr class="dropdown-divider"></li>

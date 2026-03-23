@@ -117,6 +117,116 @@
 
     <!-- Products Grid -->
     <div class="col-lg-9">
+      <!-- Bundles Section -->
+      @if($bundles->count() > 0 && !request()->hasAny(['search', 'category', 'min_price', 'max_price']))
+        <div class="mb-4">
+          <h4 class="mb-3">
+            <i class="fas fa-box-open text-warning me-2"></i>{{ __('Special Bundles') }}
+            <span class="badge bg-warning text-dark ms-2">{{ __('Save more!') }}</span>
+          </h4>
+          <div class="row">
+            @foreach($bundles->take(3) as $bundle)
+              <div class="col-md-4 mb-3">
+                <div class="card h-100 border-warning bundle-card">
+                  <div class="position-relative">
+                    @php
+                      $bundleImage = $bundle->images->first() ?? $bundle->products->first()?->images->first();
+                    @endphp
+                    @if($bundleImage)
+                      <img src="{{ $bundleImage->url }}" 
+                           class="card-img-top" 
+                           alt="{{ $bundle->name }}"
+                           style="height: 150px; object-fit: cover;">
+                    @else
+                      <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                        <i class="fas fa-box-open fa-2x text-muted"></i>
+                      </div>
+                    @endif
+                    <span class="position-absolute top-0 start-0 m-2 badge bg-warning text-dark">
+                          <i class="fas fa-box-open me-1"></i>{{ $bundle->products->count() }} {{ __('items') }}
+                        </span>
+                        @if($bundle->has_meaningful_savings)
+                          <span class="position-absolute top-0 end-0 m-2 badge bg-success">
+                            -{{ $bundle->savings_percentage }}%
+                          </span>
+                        @endif
+                      </div>
+                      <div class="card-body p-2">
+                        <h6 class="card-title mb-1">{{ $bundle->name }}</h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            @if($bundle->has_meaningful_savings)
+                              <span class="text-decoration-line-through text-muted small">{{ format_currency($bundle->total_products_value, $bundle->currency) }}</span>
+                            @endif
+                            <span class="text-success fw-bold">{{ $bundle->formatted_price }}</span>
+                          </div>
+                          <a href="{{ route('bundles.show', $bundle) }}" class="btn btn-warning btn-sm">
+                            {{ __('View') }}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                @endforeach
+              </div>
+              @if($bundles->count() > 3)
+                <div class="text-center">
+                  <button class="btn btn-outline-warning btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#moreBundles">
+                    <i class="fas fa-chevron-down me-1"></i>{{ __('Show :count more bundles', ['count' => $bundles->count() - 3]) }}
+                  </button>
+                </div>
+                <div class="collapse mt-3" id="moreBundles">
+                  <div class="row">
+                    @foreach($bundles->skip(3) as $bundle)
+                      <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-warning bundle-card">
+                          <div class="position-relative">
+                            @php
+                              $bundleImage = $bundle->images->first() ?? $bundle->products->first()?->images->first();
+                            @endphp
+                            @if($bundleImage)
+                              <img src="{{ $bundleImage->url }}" 
+                                   class="card-img-top" 
+                                   alt="{{ $bundle->name }}"
+                                   style="height: 150px; object-fit: cover;">
+                            @else
+                              <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <i class="fas fa-box-open fa-2x text-muted"></i>
+                              </div>
+                            @endif
+                            <span class="position-absolute top-0 start-0 m-2 badge bg-warning text-dark">
+                              <i class="fas fa-box-open me-1"></i>{{ $bundle->products->count() }} {{ __('items') }}
+                            </span>
+                            @if($bundle->has_meaningful_savings)
+                              <span class="position-absolute top-0 end-0 m-2 badge bg-success">
+                                -{{ $bundle->savings_percentage }}%
+                              </span>
+                            @endif
+                          </div>
+                          <div class="card-body p-2">
+                            <h6 class="card-title mb-1">{{ $bundle->name }}</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                              <div>
+                                @if($bundle->has_meaningful_savings)
+                                  <span class="text-decoration-line-through text-muted small">{{ format_currency($bundle->total_products_value, $bundle->currency) }}</span>
+                                @endif
+                                <span class="text-success fw-bold">{{ $bundle->formatted_price }}</span>
+                              </div>
+                              <a href="{{ route('bundles.show', $bundle) }}" class="btn btn-warning btn-sm">
+                                {{ __('View') }}
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    @endforeach
+                  </div>
+                </div>
+              @endif
+          <hr class="my-4">
+        </div>
+      @endif
+
       <!-- Sort Options -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center">
@@ -242,6 +352,15 @@
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.1);
   border-color: #007bff;
+}
+
+.bundle-card {
+  transition: all 0.3s ease;
+}
+
+.bundle-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
 }
 
 .product-item.list-view {

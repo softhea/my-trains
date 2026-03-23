@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderAcceptedNotification;
@@ -98,6 +99,12 @@ class OrderController extends Controller
             }
             if ($originalProduct) {
                 $originalProduct->reduceStock($order->quantity);
+                
+                // If product has "both" availability and is sold standalone,
+                // deactivate all bundles containing this product
+                if ($originalProduct->availability === Product::AVAILABILITY_BOTH) {
+                    $originalProduct->deactivateBundles();
+                }
             }
         }
 

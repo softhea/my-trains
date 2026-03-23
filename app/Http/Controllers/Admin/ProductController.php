@@ -173,13 +173,15 @@ public function index(): View
             'price' => 'required|numeric|min:0',
             'no_of_items' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
+            'availability' => 'required|in:standalone,bundle_only,both',
             'images.*' => 'nullable|image|max:8192',
             'videos' => 'nullable|string',
         ]);
 
         $product = Product::create($request->only(
-            'name', 'description', 'price', 'no_of_items', 'category_id') + [
+            'name', 'description', 'price', 'no_of_items', 'category_id', 'availability') + [
             'user_id' => $request->user()->id,
+            'is_active' => $request->has('is_active'),
         ]);
 
         // Handle image uploads
@@ -369,11 +371,14 @@ public function index(): View
             'price' => 'required|numeric|min:0',
             'no_of_items' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
+            'availability' => 'required|in:standalone,bundle_only,both',
             'images.*' => 'nullable|image|max:8192',
             'videos' => 'nullable|string',
         ]);
 
-        $product->update($request->only('name', 'description', 'price', 'no_of_items', 'category_id'));
+        $product->update($request->only('name', 'description', 'price', 'no_of_items', 'category_id', 'availability') + [
+            'is_active' => $request->has('is_active'),
+        ]);
 
         // Handle image uploads
         if ($request->has('images')) {

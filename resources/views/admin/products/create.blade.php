@@ -72,6 +72,33 @@
       </div>
     </div>
 
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label>{{ __('Availability') }}</label>
+          <select name="availability" class="form-select" required>
+            @foreach(\App\Models\Product::getAvailabilityOptions() as $value => $label)
+              <option value="{{ $value }}" {{ old('availability', 'standalone') === $value ? 'selected' : '' }}>
+                {{ $label }}
+              </option>
+            @endforeach
+          </select>
+          <div class="form-text">
+            <small>{{ __('Choose how this product can be purchased') }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label d-block">{{ __('Status') }}</label>
+          <div class="form-check form-switch mt-2">
+            <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
+            <label class="form-check-label" for="is_active">{{ __('Active (visible to customers)') }}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="mb-3">
       <label>{{ __('Images (you can upload multiple)') }}</label>
       <input type="file" name="images[]" id="images" class="form-control" multiple accept="image/*">

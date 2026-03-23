@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Bundle;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -15,9 +16,11 @@ class ProductController extends Controller
      */
     public function index(): View
     {
-        // Latest products (show latest 6 with stock)
+        // Latest products (show latest 6 with stock, active, and available standalone)
         $latestProducts = Product::with(['images', 'category', 'user'])
             ->where('no_of_items', '>', 0)
+            ->active()
+            ->availableStandalone()
             ->latest()
             ->take(6)
             ->get();
@@ -25,13 +28,23 @@ class ProductController extends Controller
         // Most popular products by view count (top 6)
         $popularProducts = Product::with(['images', 'category', 'user'])
             ->where('no_of_items', '>', 0)
+            ->active()
+            ->availableStandalone()
             ->orderByDesc('views_count')
+            ->take(6)
+            ->get();
+
+        // Active bundles (show latest 6)
+        $bundles = Bundle::with(['products.images', 'images', 'user'])
+            ->active()
+            ->latest()
             ->take(6)
             ->get();
 
         return view('home', [
             'latestProducts' => $latestProducts,
             'popularProducts' => $popularProducts,
+            'bundles' => $bundles,
         ]);
     }
 
@@ -40,7 +53,9 @@ class ProductController extends Controller
      */
     public function products(Request $request): View
     {
-        $query = Product::with(['category', 'images', 'user']);
+        $query = Product::with(['category', 'images', 'user'])
+            ->active()
+            ->availableStandalone();
 
         // Search by name and description
         if ($request->filled('search')) {
@@ -104,7 +119,13 @@ class ProductController extends Controller
         // Get price range for filters
         $priceRange = Product::selectRaw('MIN(price) as min_price, MAX(price) as max_price')->first();
 
-        return view('products.index', compact('products', 'categories', 'priceRange'));
+        // Get active bundles
+        $bundles = Bundle::with(['products.images', 'images', 'user'])
+            ->active()
+            ->latest()
+            ->get();
+
+        return view('products.index', compact('products', 'categories', 'priceRange', 'bundles'));
     }
 
     /**
@@ -131,9 +152,14 @@ class ProductController extends Controller
         // Increment views counter for popularity
         $product->increment('views_count');
 
-        $product->load(['images', 'videos', 'user']);
+        $product->load(['images', 'videos', 'user', 'bundles' => function ($query) {
+            $query->where('is_active', true);
+        }]);
         
-        return view('products.show', compact('product'));
+        // Get active bundles containing this product
+        $activeBundles = $product->bundles()->where('is_active', true)->with('products.images')->get();
+        
+        return view('products.show', compact('product', 'activeBundles'));
     }
 
     /**

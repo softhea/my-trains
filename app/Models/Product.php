@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\Activitylog\LogOptions;
@@ -14,6 +15,10 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Product extends Model
 {
     use LogsActivity;
+
+    public const AVAILABILITY_STANDALONE = 'standalone';
+    public const AVAILABILITY_BUNDLE_ONLY = 'bundle_only';
+    public const AVAILABILITY_BOTH = 'both';
 
     public $fillable = [
         'name',
@@ -24,10 +29,13 @@ class Product extends Model
         'category_id',
         'views_count',
         'user_id',
+        'is_active',
+        'availability',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'is_active' => 'boolean',
     ];
 
     public function images()
@@ -132,6 +140,93 @@ class Product extends Model
         return [
             'RON' => 'RON (Romanian Leu)',
             'EUR' => 'EUR (Euro)',
+        ];
+    }
+
+    /**
+     * Get bundles that include this product
+     */
+    public function bundles(): BelongsToMany
+    {
+        return $this->belongsToMany(Bundle::class, 'bundle_products')
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if product can be purchased standalone
+     */
+    public function canPurchaseStandalone(): bool
+    {
+        return $this->is_active 
+            && in_array($this->availability, [self::AVAILABILITY_STANDALONE, self::AVAILABILITY_BOTH]);
+    }
+
+    /**
+     * Check if product is available in bundles
+     */
+    public function isAvailableInBundle(): bool
+    {
+        return in_array($this->availability, [self::AVAILABILITY_BUNDLE_ONLY, self::AVAILABILITY_BOTH]);
+    }
+
+    /**
+     * Check if product is bundle-only
+     */
+    public function isBundleOnly(): bool
+    {
+        return $this->availability === self::AVAILABILITY_BUNDLE_ONLY;
+    }
+
+    /**
+     * Get active bundles containing this product
+     */
+    public function getActiveBundlesAttribute()
+    {
+        return $this->bundles()->where('is_active', true)->get();
+    }
+
+    /**
+     * Deactivate all bundles containing this product
+     */
+    public function deactivateBundles(): void
+    {
+        $this->bundles()->update(['is_active' => false]);
+    }
+
+    /**
+     * Scope for active products
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope for products available standalone
+     */
+    public function scopeAvailableStandalone($query)
+    {
+        return $query->whereIn('availability', [self::AVAILABILITY_STANDALONE, self::AVAILABILITY_BOTH]);
+    }
+
+    /**
+     * Scope for products available in bundles
+     */
+    public function scopeAvailableInBundle($query)
+    {
+        return $query->whereIn('availability', [self::AVAILABILITY_BUNDLE_ONLY, self::AVAILABILITY_BOTH]);
+    }
+
+    /**
+     * Get available availability options
+     */
+    public static function getAvailabilityOptions(): array
+    {
+        return [
+            self::AVAILABILITY_STANDALONE => __('Standalone only'),
+            self::AVAILABILITY_BUNDLE_ONLY => __('Bundle only'),
+            self::AVAILABILITY_BOTH => __('Both standalone and bundle'),
         ];
     }
 

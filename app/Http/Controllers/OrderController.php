@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Bundle;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewOrderNotification;
@@ -20,6 +21,16 @@ class OrderController extends Controller
         ]);
 
         $product = Product::findOrFail($request->product_id);
+        
+        // Check if product is active
+        if (!$product->is_active) {
+            return back()->with('error', __('This product is currently unavailable.'));
+        }
+
+        // Check if product can be purchased standalone
+        if (!$product->canPurchaseStandalone()) {
+            return back()->with('error', __('This product is only available as part of a bundle.'));
+        }
         
         // Prevent ordering own product
         if ($product->user_id && $product->user_id === auth()->id()) {
@@ -100,5 +111,72 @@ class OrderController extends Controller
         }
 
         return back()->with('error', 'This order cannot be cancelled.');
+    }
+
+    public function storeBundle(Request $request)
+    {
+        $request->validate([
+            'bundle_id' => 'required|exists:bundles,id',
+            'note' => 'nullable|string',
+        ]);
+
+        $bundle = Bundle::with('products')->findOrFail($request->bundle_id);
+        
+        // Check if bundle is active
+        if (!$bundle->is_active) {
+            return back()->with('error', __('This bundle is currently unavailable.'));
+        }
+
+        // Prevent ordering own bundle
+        if ($bundle->user_id === auth()->id()) {
+            return back()->with('error', __('You cannot order your own bundle.'));
+        }
+
+        // Check if all products have enough stock
+        if (!$bundle->hasStock()) {
+            return back()->with('error', __('One or more products in this bundle are out of stock.'));
+        }
+
+        try {
+            $orders = [];
+            DB::transaction(function () use ($request, $bundle, &$orders) {
+                // Create an order for each product in the bundle
+                foreach ($bundle->products as $product) {
+                    $quantity = $product->pivot->quantity;
+                    
+                    // Calculate proportional price for this product in the bundle
+                    $productValue = (float) $product->price * $quantity;
+                    $totalBundleValue = $bundle->total_products_value;
+                    $proportion = $totalBundleValue > 0 ? $productValue / $totalBundleValue : 0;
+                    $discountedPrice = (float) $bundle->price * $proportion;
+                    
+                    $order = Order::createWithSnapshots(
+                        $product,
+                        auth()->user(),
+                        $quantity,
+                        __('Bundle: :name', ['name' => $bundle->name]) . ($request->note ? "\n" . $request->note : ''),
+                        $discountedPrice
+                    );
+
+                    // Restore stock since we only reduce on acceptance
+                    $product->restoreStock($quantity);
+
+                    $order->load(['orderProduct', 'orderSeller', 'orderBuyer']);
+                    $orders[] = $order;
+                }
+            });
+
+            // Send email notifications to sellers
+            foreach ($orders as $order) {
+                if ($order->orderSeller && $order->orderSeller->email) {
+                    Mail::to($order->orderSeller->email)->send(new NewOrderNotification($order));
+                }
+            }
+
+            return redirect()->route('orders.index')
+                ->with('success', __('Bundle ordered successfully! :count orders have been placed.', ['count' => count($orders)]));
+        } catch (\Exception $e) {
+            return back()->with('error', __('There was an error placing your order. Please try again.'));
+        }
     }
 }

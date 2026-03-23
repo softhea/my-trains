@@ -133,6 +133,36 @@
               </div>
             </div>
 
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="availability" class="form-label">{{ __('Availability') }}</label>
+                  <select name="availability" id="availability" class="form-select @error('availability') is-invalid @enderror" required>
+                    @foreach(\App\Models\Product::getAvailabilityOptions() as $value => $label)
+                      <option value="{{ $value }}" {{ old('availability', $product->availability) === $value ? 'selected' : '' }}>
+                        {{ $label }}
+                      </option>
+                    @endforeach
+                  </select>
+                  @error('availability')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                  <div class="form-text">
+                    <small>{{ __('Choose how this product can be purchased') }}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label d-block">{{ __('Status') }}</label>
+                  <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="is_active">{{ __('Active (visible to customers)') }}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Existing Images -->
             @if($product->images->count() > 0)
               <div class="mb-3">

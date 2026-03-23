@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\MessageController as AdminMessageController;
+use App\Http\Controllers\Admin\BundleController as AdminBundleController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cookie;
@@ -31,6 +32,15 @@ Route::middleware('setlocale')->group(function () {
         ->name('products.show');
     Route::post('/order', [OrderController::class, 'store'])
         ->name('order.store')
+        ->middleware(['auth', 'verified']);
+
+    // Bundles
+    Route::get('/bundles/{bundle}', function (\App\Models\Bundle $bundle) {
+        $bundle->load(['products.images', 'images', 'user']);
+        return view('bundles.show', compact('bundle'));
+    })->name('bundles.show');
+    Route::post('/bundle/order', [OrderController::class, 'storeBundle'])
+        ->name('bundle.order.store')
         ->middleware(['auth', 'verified']);
 
     // Contact routes
@@ -199,6 +209,28 @@ Route::middleware('setlocale')->group(function () {
             ->name('admin.messages.toggle-read');
         Route::post('/messages/bulk-action', [AdminMessageController::class, 'bulkAction'])
             ->name('admin.messages.bulk-action');
+
+        // Bundle Management
+        Route::get('/bundles', [AdminBundleController::class, 'index'])
+            ->name('admin.bundles.index');
+        Route::get('/bundles/create', [AdminBundleController::class, 'create'])
+            ->name('admin.bundles.create');
+        Route::post('/bundles', [AdminBundleController::class, 'store'])
+            ->name('admin.bundles.store');
+        Route::get('/bundles/{bundle}/edit', [AdminBundleController::class, 'edit'])
+            ->name('admin.bundles.edit');
+        Route::put('/bundles/{bundle}', [AdminBundleController::class, 'update'])
+            ->name('admin.bundles.update');
+        Route::delete('/bundles/{bundle}', [AdminBundleController::class, 'destroy'])
+            ->name('admin.bundles.destroy');
+        Route::patch('/bundles/{bundle}/toggle-status', [AdminBundleController::class, 'toggleStatus'])
+            ->name('admin.bundles.toggle-status');
+        Route::delete('/bundles/images/{image}', [AdminBundleController::class, 'deleteImage'])
+            ->name('admin.bundles.images.destroy');
+
+        // Seller Bundle Management (alias routes)
+        Route::get('/my-bundles', [AdminBundleController::class, 'index'])
+            ->name('seller.bundles.index');
         });
 
     Route::middleware('auth')->group(function () {

@@ -37,8 +37,8 @@
             <th>{{ __('Category') }}</th>
             <th>{{ __('Owner') }}</th>
             <th>{{ __('Price') }}</th>
-            <th>{{ __('Images') }}</th>
-            <th>{{ __('Videos') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Availability') }}</th>
             <th>{{ __('Actions') }}</th>
           </tr>
         </thead>
@@ -69,13 +69,33 @@
                 <span class="badge bg-dark">{{ $product->user->name ?? '—' }}</span>
               </td>
               <td>
-                <strong>{{ $product->formatted_price }}</strong>
+                @if($product->price > 0)
+                  <strong>{{ $product->formatted_price }}</strong>
+                @else
+                  <span class="text-muted">-</span>
+                @endif
               </td>
               <td>
-                <span class="badge bg-info">{{ $product->images->count() }} {{ __('images') }}</span>
+                @if($product->is_active)
+                  <span class="badge bg-success">{{ __('Active') }}</span>
+                @else
+                  <span class="badge bg-danger">{{ __('Inactive') }}</span>
+                @endif
+                <br>
+                <small class="text-muted">{{ $product->no_of_items }} {{ __('in stock') }}</small>
               </td>
               <td>
-                <span class="badge bg-warning">{{ $product->videos->count() }} {{ __('videos') }}</span>
+                @switch($product->availability)
+                  @case('standalone')
+                    <span class="badge bg-primary">{{ __('Standalone') }}</span>
+                    @break
+                  @case('bundle_only')
+                    <span class="badge bg-info">{{ __('Bundle only') }}</span>
+                    @break
+                  @case('both')
+                    <span class="badge bg-secondary">{{ __('Both') }}</span>
+                    @break
+                @endswitch
               </td>
               <td>
                 <div class="btn-group" role="group" aria-label="Product actions">
