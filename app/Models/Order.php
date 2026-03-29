@@ -133,7 +133,9 @@ class Order extends Model
     }
 
     /**
-     * Cancel the order and restore stock.
+     * Cancel the order and restore stock if applicable.
+     * Stock is only restored if the order was in 'processing' or 'completed' status
+     * (pending orders never had stock reduced).
      */
     public function cancel(): bool
     {
@@ -141,12 +143,15 @@ class Order extends Model
             return false;
         }
 
+        $oldStatus = $this->status;
         $this->update(['status' => 'cancelled']);
 
-        // Try to restore stock to original product if it still exists
-        $originalProduct = $this->orderProduct?->product;
-        if ($originalProduct) {
-            $originalProduct->restoreStock($this->quantity);
+        // Only restore stock if it was actually reduced (processing or completed orders)
+        if (in_array($oldStatus, ['processing', 'completed'])) {
+            $originalProduct = $this->orderProduct?->product;
+            if ($originalProduct) {
+                $originalProduct->restoreStock($this->quantity);
+            }
         }
 
         return true;

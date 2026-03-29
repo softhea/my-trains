@@ -90,14 +90,14 @@
                 </a>
               </div>
             @else
-              <form action="{{ route('bundle.order.store') }}" method="POST">
+              <form action="{{ route('bundle.order.store') }}" method="POST" class="order-form">
                 @csrf
                 <input type="hidden" name="bundle_id" value="{{ $bundle->id }}">
                 <div class="mb-3">
                   <label>{{ __('Note (optional)') }}</label>
                   <textarea name="note" class="form-control" rows="2"></textarea>
                 </div>
-                <button type="submit" class="btn btn-success btn-lg w-100">
+                <button type="submit" class="btn btn-success btn-lg w-100 order-submit-btn">
                   <i class="fas fa-shopping-cart me-2"></i>{{ __('Order Bundle') }} - {{ $bundle->formatted_price }}
                 </button>
               </form>

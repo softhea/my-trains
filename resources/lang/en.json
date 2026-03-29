@@ -489,6 +489,9 @@
   "You cannot order your own bundle.": "You cannot order your own bundle.",
   "Bundle ordered successfully! :count orders have been placed.": "Bundle ordered successfully! :count orders have been placed.",
   "Bundle: :name": "Bundle: :name",
-  "You can only add your own products to bundles.": "You can only add your own products to bundles."
+  "You can only add your own products to bundles.": "You can only add your own products to bundles.",
+  "You already have a pending order for this product. Please wait for the seller to respond.": "You already have a pending order for this product. Please wait for the seller to respond.",
+  "You already have a pending order for this bundle. Please wait for the seller to respond.": "You already have a pending order for this bundle. Please wait for the seller to respond.",
+  "Processing...": "Processing..."
 }
 

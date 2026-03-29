@@ -490,6 +490,9 @@
   "You cannot order your own bundle.": "Nu poți comanda propriul tău pachet.",
   "Bundle ordered successfully! :count orders have been placed.": "Pachetul a fost comandat cu succes! Au fost plasate :count comenzi.",
   "Bundle: :name": "Pachet: :name",
-  "You can only add your own products to bundles.": "Poți adăuga doar propriile tale produse în pachete."
+  "You can only add your own products to bundles.": "Poți adăuga doar propriile tale produse în pachete.",
+  "You already have a pending order for this product. Please wait for the seller to respond.": "Ai deja o comandă în așteptare pentru acest produs. Te rugăm să aștepți răspunsul vânzătorului.",
+  "You already have a pending order for this bundle. Please wait for the seller to respond.": "Ai deja o comandă în așteptare pentru acest pachet. Te rugăm să aștepți răspunsul vânzătorului.",
+  "Processing...": "Se procesează..."
 }
 

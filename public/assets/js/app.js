@@ -10,6 +10,7 @@ window.MyTrainShop = {
         this.initAlerts();
         this.initTooltips();
         this.initImageViewer();
+        this.initOrderForms();
     },
 
     // Initialize navbar functionality
@@ -112,6 +113,24 @@ window.MyTrainShop = {
                 bsAlert.close();
             }
         }, 5000);
+    },
+
+    // Prevent double form submission for order forms
+    initOrderForms: function() {
+        const orderForms = document.querySelectorAll('.order-form');
+        orderForms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('.order-submit-btn');
+                if (submitBtn && submitBtn.disabled) {
+                    e.preventDefault();
+                    return false;
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                }
+            });
+        });
     },
 
     // Initialize image viewer/lightbox functionality

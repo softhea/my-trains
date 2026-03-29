@@ -37,6 +37,20 @@ class OrderController extends Controller
             return back()->with('error', __('You cannot order your own product.'));
         }
 
+        // Prevent duplicate orders: same user cannot order same product if they have a pending order
+        $pendingOrder = Order::whereHas('orderBuyer', function ($q) {
+            $q->where('user_id', auth()->id());
+        })
+            ->whereHas('orderProduct', function ($q) use ($product) {
+                $q->where('product_id', $product->id);
+            })
+            ->where('status', 'pending')
+            ->first();
+
+        if ($pendingOrder) {
+            return back()->with('error', __('You already have a pending order for this product. Please wait for the seller to respond.'));
+        }
+
         // Check if product has enough stock
         if (!$product->hasStock($request->quantity)) {
             return back()->with('error', __('Sorry, we only have :count items in stock.', ['count' => $product->no_of_items]));
@@ -130,6 +144,24 @@ class OrderController extends Controller
         // Prevent ordering own bundle
         if ($bundle->user_id === auth()->id()) {
             return back()->with('error', __('You cannot order your own bundle.'));
+        }
+
+        // Prevent duplicate bundle orders: same user cannot order same bundle if they have a pending order
+        $firstProductId = $bundle->products->first()?->id;
+        if ($firstProductId) {
+            $pendingBundleOrder = Order::whereHas('orderBuyer', function ($q) {
+                $q->where('user_id', auth()->id());
+            })
+                ->whereHas('orderProduct', function ($q) use ($firstProductId) {
+                    $q->where('product_id', $firstProductId);
+                })
+                ->where('note', 'like', '%Bundle: ' . $bundle->name . '%')
+                ->where('status', 'pending')
+                ->first();
+
+            if ($pendingBundleOrder) {
+                return back()->with('error', __('You already have a pending order for this bundle. Please wait for the seller to respond.'));
+            }
         }
 
         // Check if all products have enough stock

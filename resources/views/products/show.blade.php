@@ -140,7 +140,7 @@
             <strong>{{ __('Sorry!') }}</strong> {{ __('This product is currently out of stock.') }}
           </div>
         @else
-          <form action="{{ route('order.store') }}" method="POST">
+          <form action="{{ route('order.store') }}" method="POST" class="order-form">
             @csrf
             <input type="hidden" name="product_id" value="{{ $product->id }}">
             <div class="mb-2">
@@ -152,7 +152,7 @@
               <label>{{ __('Note (optional)') }}</label>
               <textarea name="note" class="form-control"></textarea>
             </div>
-            <button class="btn btn-success">{{ __('Place Order') }}</button>
+            <button type="submit" class="btn btn-success order-submit-btn">{{ __('Place Order') }}</button>
           </form>
 
           @if(isset($activeBundles) && $activeBundles->count() > 0)
